@@ -118,6 +118,15 @@ h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;line-height:1.3}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
 .chips li{font-family:var(--mono);font-size:13px;padding:7px 12px;border:1px solid var(--line-2);border-radius:999px;color:var(--text-2)}
 
+/* downloads */
+.files{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;border-top:1px solid var(--line-2)}
+.files li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding:22px 0;border-bottom:1px solid var(--line-2)}
+.files .info{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.files .info b{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.files .info span{font-size:15px;line-height:1.6;color:var(--text-3)}
+.files .meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.files .btn{min-height:44px;padding:10px 18px;font-size:15px}
+
 /* process */
 .steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:20px}
 .steps li{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:12px;padding-top:20px;border-top:2px solid var(--accent)}
@@ -177,6 +186,7 @@ footer{border-top:1px solid var(--line)}
       <a href="#work">작업 사례</a>
       <a href="#stack">기술</a>
       <a href="#notes">기술 공유</a>
+      <a href="#downloads">자료실</a>
       <a href="#process">진행 방식</a>
       <a class="btn btn-primary" href="#contact">프로젝트 문의</a>
     </nav>
@@ -271,9 +281,25 @@ footer{border-top:1px solid var(--line)}
     </div>
   </section>
 
+  <section id="downloads" class="section">
+    <div class="wrap">
+      <div class="head split">
+        <div class="head" style="margin:0"><span class="eyebrow">05 / DOWNLOADS</span><h2>자료실</h2></div>
+        <p class="note">업무에 바로 쓸 수 있는 양식과 자료를 무료로 내려받을 수 있습니다.</p>
+      </div>
+      <ul class="files">
+        <li>
+          <div class="info"><b>주소 일괄 변환용 엑셀 양식</b><span>도로명·지번 주소를 한 열에 모아 두면 일괄 정리와 변환 작업에 바로 쓸 수 있는 CSV 양식입니다.</span><span class="meta">CSV · UTF-8 · 엑셀에서 바로 열림</span></div>
+          <a class="btn btn-ghost" href="downloads/address-template.csv" download>다운로드</a>
+        </li>
+        <!-- 자료 추가: public/downloads/ 폴더에 파일을 넣고, 위 <li> 블록을 복사해 제목·설명·href만 바꾸세요 -->
+      </ul>
+    </div>
+  </section>
+
   <section id="process" class="section">
     <div class="wrap">
-      <div class="head"><span class="eyebrow">05 / PROCESS</span><h2>진행 방식</h2></div>
+      <div class="head"><span class="eyebrow">06 / PROCESS</span><h2>진행 방식</h2></div>
       <ol class="steps">
         <li><span class="n">STEP 1</span><b>무료 상담</b><span>가지고 있는 데이터와 원하는 결과를 듣고 가능 여부를 먼저 알려드립니다.</span></li>
         <li><span class="n">STEP 2</span><b>범위 확정</b><span>기능 목록과 일정을 문서로 정리해 합의한 뒤 시작합니다.</span></li>
