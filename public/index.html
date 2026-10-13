@@ -159,8 +159,12 @@ button.btn:disabled{opacity:.6;cursor:default}
 
 /* phone */
 @media (max-width:640px){
-  .nav a:not(.btn){display:none}
-  .top .wrap{flex-wrap:nowrap}
+  html{scroll-padding-top:112px}
+  .top .wrap{gap:8px 16px;padding-top:10px;padding-bottom:6px}
+  .nav{order:3;flex:1 0 100%;flex-wrap:nowrap;gap:0 22px;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;font-size:15px}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{flex-shrink:0;display:inline-flex;align-items:center;min-height:44px}
+  .nav .btn{margin-left:auto}
   .brand small{display:none}
   .section{padding:72px 0}
   .hero{padding-top:56px;padding-bottom:72px;gap:40px}
