@@ -23,6 +23,9 @@ h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;line-height:1.3}
 .btn-primary:hover{background:var(--accent-hi);color:var(--bg)}
 .btn-ghost{color:var(--text);border:1.5px solid var(--steel)}
 .btn-ghost:hover{color:var(--text);border-color:var(--accent)}
+button.btn{font-family:inherit}
+button.btn-ghost{background:transparent;color:var(--text)}
+button.btn-ghost:hover{background:rgba(242,165,65,.08);color:var(--text)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 /* header */
