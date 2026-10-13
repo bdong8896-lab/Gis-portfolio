@@ -55,7 +55,7 @@
       <a href="#work">작업 사례</a>
       <a href="#stack">기술</a>
       <a href="#notes">기술 공유</a>
-      <a href="resources.html">자료실</a>
+      <a href="/resources">자료실</a>
       <a href="#process">진행 방식</a>
       <a href="#faq">FAQ</a>
       <a class="btn btn-primary" href="#contact">프로젝트 문의</a>
@@ -143,12 +143,12 @@
         <p class="note">현장에서 부딪히고 해결한 내용을 정리해 둡니다. 글은 계속 추가됩니다.</p>
       </div>
       <div class="cards">
-        <article class="card"><span class="no">NOTE 01</span><h3>좌표계가 어긋날 때: EPSG:5181 ↔ 3857</h3><p>국내 지도 SDK와 웹 메르카토르 레이어를 함께 쓰면 위치가 수십~수백 미터씩 밀립니다. 어디서 좌표계가 섞이는지 찾고 변환 지점을 한 곳으로 모으는 방법.</p><span class="ex">OpenLayers · proj4 · 좌표 변환</span><a class="more" href="notes/coordinate-systems.html">글 읽기 →</a></article>
-        <article class="card"><span class="no">NOTE 02</span><h3>내부망에서 외부 지도 API 쓰기</h3><p>IIS ARR 리버스 프록시로 외부 지도·주소 API를 내부망에서 안정적으로 호출하는 구성과, 막히기 쉬운 지점(SSL, 헤더, URL Rewrite) 점검 순서.</p><span class="ex">IIS ARR · URL Rewrite · SSL</span><a class="more" href="notes/iis-arr-proxy.html">글 읽기 →</a></article>
-        <article class="card"><span class="no">NOTE 03</span><h3>큰 GeoJSON을 가볍게: PMTiles</h3><p>수십 MB짜리 경계 데이터를 tippecanoe로 타일화해 서버 없이 정적 파일로 서비스하는 흐름과, 줌 레벨별 단순화 설정.</p><span class="ex">tippecanoe · PMTiles · GeoJSON</span><a class="more" href="notes/geojson-to-pmtiles.html">글 읽기 →</a></article>
-        <article class="card"><span class="no">NOTE 04</span><h3>제각각인 주소 정리하기</h3><p>엑셀에 섞여 있는 도로명·지번·약식 주소를 정규화하고 지오코딩해 좌표로 바꿀 때 자주 생기는 오류 유형과 대처법.</p><span class="ex">Python · openpyxl · Geocoder</span><a class="more" href="notes/address-cleanup.html">글 읽기 →</a></article>
-        <article class="card"><span class="no">NOTE 05</span><h3>QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때</h3><p>셰이프파일을 열었더니 속성 표가 ?나 알 수 없는 글자로 보일 때, 원인과 해결 순서.</p><span class="ex">QGIS · ArcGIS · CP949 · UTF-8 · .cpg</span><a class="more" href="notes/shp-korean-encoding.html">글 읽기 →</a></article>
-        <article class="card"><span class="no">NOTE 06</span><h3>QGIS·ArcGIS에서 좌표계가 없는 데이터에 좌표계 지정하기</h3><p>좌표계가 "알 수 없음"으로 뜨는 파일을 열 때, 지정과 재투영을 헷갈리지 않는 방법.</p><span class="ex">QGIS · ArcGIS · 투영 정의 · 재투영 · EPSG</span><a class="more" href="notes/define-vs-reproject.html">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 01</span><h3>좌표계가 어긋날 때: EPSG:5181 ↔ 3857</h3><p>국내 지도 SDK와 웹 메르카토르 레이어를 함께 쓰면 위치가 수십~수백 미터씩 밀립니다. 어디서 좌표계가 섞이는지 찾고 변환 지점을 한 곳으로 모으는 방법.</p><span class="ex">OpenLayers · proj4 · 좌표 변환</span><a class="more" href="/notes/coordinate-systems">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 02</span><h3>내부망에서 외부 지도 API 쓰기</h3><p>IIS ARR 리버스 프록시로 외부 지도·주소 API를 내부망에서 안정적으로 호출하는 구성과, 막히기 쉬운 지점(SSL, 헤더, URL Rewrite) 점검 순서.</p><span class="ex">IIS ARR · URL Rewrite · SSL</span><a class="more" href="/notes/iis-arr-proxy">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 03</span><h3>큰 GeoJSON을 가볍게: PMTiles</h3><p>수십 MB짜리 경계 데이터를 tippecanoe로 타일화해 서버 없이 정적 파일로 서비스하는 흐름과, 줌 레벨별 단순화 설정.</p><span class="ex">tippecanoe · PMTiles · GeoJSON</span><a class="more" href="/notes/geojson-to-pmtiles">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 04</span><h3>제각각인 주소 정리하기</h3><p>엑셀에 섞여 있는 도로명·지번·약식 주소를 정규화하고 지오코딩해 좌표로 바꿀 때 자주 생기는 오류 유형과 대처법.</p><span class="ex">Python · openpyxl · Geocoder</span><a class="more" href="/notes/address-cleanup">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 05</span><h3>QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때</h3><p>셰이프파일을 열었더니 속성 표가 ?나 알 수 없는 글자로 보일 때, 원인과 해결 순서.</p><span class="ex">QGIS · ArcGIS · CP949 · UTF-8 · .cpg</span><a class="more" href="/notes/shp-korean-encoding">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 06</span><h3>QGIS·ArcGIS에서 좌표계가 없는 데이터에 좌표계 지정하기</h3><p>좌표계가 "알 수 없음"으로 뜨는 파일을 열 때, 지정과 재투영을 헷갈리지 않는 방법.</p><span class="ex">QGIS · ArcGIS · 투영 정의 · 재투영 · EPSG</span><a class="more" href="/notes/define-vs-reproject">글 읽기 →</a></article>
       </div>
     </div>
   </section>

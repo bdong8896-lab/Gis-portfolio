@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때 | 지도공방</title>
 <meta name="description" content="셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.">
-<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding.html">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding">
 <meta property="og:title" content="QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때 | 지도공방">
 <meta property="og:description" content="셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding.html">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding">
 <meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
 <meta property="og:site_name" content="지도공방">
 <meta property="og:locale" content="ko_KR">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TechArticle","headline":"QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때","description":"셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.","datePublished":"2026-10-13","dateModified":"2026-10-13","inLanguage":"ko","author":{"@type":"Organization","name":"지도공방"},"publisher":{"@type":"Organization","name":"지도공방"},"mainEntityOfPage":"https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding.html"}
+{"@context":"https://schema.org","@type":"TechArticle","headline":"QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때","description":"셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.","datePublished":"2026-10-13","dateModified":"2026-10-13","inLanguage":"ko","author":{"@type":"Organization","name":"지도공방"},"publisher":{"@type":"Organization","name":"지도공방"},"mainEntityOfPage":"https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding"}
 </script>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,23 +25,23 @@
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="../index.html">
+    <a class="brand" href="/">
       <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
       <b>지도공방</b><small>GIS DEVELOPER</small>
     </a>
     <nav class="nav" aria-label="주 메뉴">
-      <a href="../index.html#services">서비스</a>
-      <a href="../index.html#work">작업 사례</a>
-      <a href="../index.html#notes" aria-current="page">기술 공유</a>
-      <a href="../resources.html">자료실</a>
-      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      <a href="/#services">서비스</a>
+      <a href="/#work">작업 사례</a>
+      <a href="/#notes" aria-current="page">기술 공유</a>
+      <a href="/resources">자료실</a>
+      <a class="btn btn-primary" href="/#contact">프로젝트 문의</a>
     </nav>
   </div>
 </header>
 <main id="top">
   <article class="section prose-wrap" style="border-top:none">
     <div class="wrap prose">
-      <a class="back" href="../index.html#notes">← 기술 공유</a>
+      <a class="back" href="/#notes">← 기술 공유</a>
       <span class="eyebrow">NOTE 05</span>
       <h1>QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때</h1>
       <p class="lead">셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.</p>
@@ -102,16 +102,16 @@ ogr2ogr -f GeoJSON out.geojson in.shp -oo ENCODING=CP949</code></pre>
       <aside class="callout">
         <b>비슷한 문제를 겪고 계신가요?</b>
         <span>데이터와 상황만 알려주시면 원인부터 같이 살펴봅니다.</span>
-        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+        <a class="btn btn-primary" href="/#contact">프로젝트 문의</a>
       </aside>
-      <nav class="more-notes" aria-label="다른 글"><a href="coordinate-systems.html">NOTE 01 · 좌표계가 어긋날 때: EPSG:5181과 3857 다루기</a><a href="iis-arr-proxy.html">NOTE 02 · 내부망에서 외부 지도 API 쓰기: IIS ARR 리버스 프록시</a><a href="geojson-to-pmtiles.html">NOTE 03 · 큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기</a><a href="address-cleanup.html">NOTE 04 · 제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기</a><a href="define-vs-reproject.html">NOTE 06 · QGIS·ArcGIS에서 좌표계가 없는 데이터에 좌표계 지정하기</a></nav>
+      <nav class="more-notes" aria-label="다른 글"><a href="/notes/coordinate-systems">NOTE 01 · 좌표계가 어긋날 때: EPSG:5181과 3857 다루기</a><a href="/notes/iis-arr-proxy">NOTE 02 · 내부망에서 외부 지도 API 쓰기: IIS ARR 리버스 프록시</a><a href="/notes/geojson-to-pmtiles">NOTE 03 · 큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기</a><a href="/notes/address-cleanup">NOTE 04 · 제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기</a><a href="/notes/define-vs-reproject">NOTE 06 · QGIS·ArcGIS에서 좌표계가 없는 데이터에 좌표계 지정하기</a></nav>
     </div>
   </article>
 </main>
 <footer>
   <div class="wrap">
     <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
-    <a href="../index.html">홈으로</a>
+    <a href="/">홈으로</a>
   </div>
 </footer>
 <script src="../site.js" defer></script>
