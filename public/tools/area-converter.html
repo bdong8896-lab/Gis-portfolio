@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>면적 단위 변환기 | 지도공방</title>
+<meta name="description" content="제곱미터(㎡), 평, 정보, 헥타르(ha), 제곱킬로미터, 제곱피트, 에이커 면적 단위를 한 번에 변환하는 무료 면적 단위 변환기입니다.">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/tools/area-converter.html">
+<meta property="og:title" content="면적 단위 변환기 | 지도공방">
+<meta property="og:description" content="제곱미터(㎡), 평, 정보, 헥타르(ha), 제곱킬로미터, 제곱피트, 에이커 면적 단위를 한 번에 변환하는 무료 면적 단위 변환기입니다.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/tools/area-converter.html">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
+<meta property="og:site_name" content="지도공방">
+<meta property="og:locale" content="ko_KR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"면적 단위 변환기","description":"제곱미터(㎡), 평, 정보, 헥타르(ha), 제곱킬로미터, 제곱피트, 에이커 면적 단위를 한 번에 변환하는 무료 면적 단위 변환기입니다.","url":"https://gis-portfolio.bdong8896.workers.dev/tools/area-converter.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"publisher":{"@type":"Organization","name":"지도공방"}}
+</script>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>지도공방</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../index.html#services">서비스</a>
+      <a href="../index.html#work">작업 사례</a>
+      <a href="../index.html#notes">기술 공유</a>
+      <a href="../resources.html" aria-current="page">자료실</a>
+      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <section class="section" style="border-top:none">
+    <div class="wrap">
+      <a class="back-link" href="../resources.html">← 자료실</a>
+      <div class="head"><span class="eyebrow">FREE TOOL</span><h1 class="tool-title">면적 단위 변환기</h1><p class="tool-lead">제곱미터, 평, 정보, 헥타르, 제곱킬로미터, 제곱피트, 에이커를 한 번에 바꿔서 보여 줍니다.</p></div>
+
+      <div class="tool-box">
+        <div class="tool-row">
+          <div class="field"><label for="val">면적 값</label>
+            <input id="val" type="text" inputmode="decimal" value="100" autocomplete="off"></div>
+          <div class="field"><label for="unit">단위</label>
+            <select id="unit"></select></div>
+        </div>
+        <p class="tool-warn" id="warn" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="tool-box">
+        <div class="res-wrap"><table class="res" id="res"><thead><tr><th>단위</th><th>값</th></tr></thead><tbody></tbody></table></div>
+        <p class="tool-hint">행을 눌러 값을 복사할 수 있습니다.</p>
+      </div>
+
+      <ul class="note-list">
+        <li>1평 = 400/121 ㎡ (약 3.305785 ㎡) 기준입니다. 평은 법정계량단위가 아니어서 건축·부동산 관행으로 쓰이는 값입니다.</li>
+        <li>1정보 = 3,000평, 1ha = 10,000㎡, 1㎢ = 1,000,000㎡ 입니다.</li>
+        <li>계산은 브라우저 안에서만 이루어집니다.</li>
+      </ul>
+
+      <aside class="callout" style="margin-top:56px">
+        <b>업무에 맞춘 도구가 필요하신가요?</b>
+        <span>엑셀 일괄 처리, 사내 시스템 연동까지 필요에 맞게 만들어 드립니다.</span>
+        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
+    <a href="../resources.html">자료실로</a>
+  </div>
+</footer>
+<script>
+(function(){
+  var U=[
+    {k:'m2', n:'제곱미터 (㎡)', f:1},
+    {k:'pyeong', n:'평', f:400/121},
+    {k:'jungbo', n:'정보 (3,000평)', f:400/121*3000},
+    {k:'ha', n:'헥타르 (ha)', f:10000},
+    {k:'km2', n:'제곱킬로미터 (㎢)', f:1e6},
+    {k:'ft2', n:'제곱피트 (ft²)', f:0.09290304},
+    {k:'acre', n:'에이커 (acre)', f:4046.8564224}
+  ];
+  var $=function(id){return document.getElementById(id)};
+  var unit=$('unit'), val=$('val'), tb=$('res').tBodies[0], warn=$('warn');
+  U.forEach(function(u){ unit.add(new Option(u.n,u.k)); });
+  unit.value='m2';
+  var nf=new Intl.NumberFormat('ko-KR',{maximumFractionDigits:6});
+  function fmt(v){
+    if(!isFinite(v)) return '—';
+    if(v!==0 && Math.abs(v)<0.000001) return v.toExponential(4);
+    return nf.format(v);
+  }
+  function run(){
+    var s=val.value.replace(/,/g,'').trim(), n=parseFloat(s);
+    tb.textContent=''; warn.textContent='';
+    if(s==='') return;
+    if(!isFinite(n)||!/^-?\d*\.?\d*(e-?\d+)?$/i.test(s)){ warn.textContent='숫자만 입력해 주세요.'; return; }
+    var f=U.filter(function(u){return u.k===unit.value})[0].f, m2=n*f;
+    U.forEach(function(u){
+      var tr=document.createElement('tr'), a=document.createElement('td'), b=document.createElement('td');
+      a.textContent=u.n; b.textContent=fmt(m2/u.f);
+      if(u.k===unit.value){ b.style.color='var(--accent)'; }
+      tr.style.cursor='pointer'; tr.title='눌러서 복사';
+      tr.addEventListener('click',function(){
+        var t=b.textContent.replace(/,/g,'');
+        if(navigator.clipboard) navigator.clipboard.writeText(t);
+        var old=b.textContent; b.textContent='복사됨'; setTimeout(function(){b.textContent=old},900);
+      });
+      tr.appendChild(a); tr.appendChild(b); tb.appendChild(tr);
+    });
+  }
+  val.addEventListener('input',run); unit.addEventListener('change',run);
+  run();
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>

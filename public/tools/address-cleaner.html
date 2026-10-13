@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주소 정리 도구 | 지도공방</title>
+<meta name="description" content="엑셀 주소 목록의 괄호, 쉼표 뒤 상세주소, 중복 공백, 시도 약칭을 한 번에 정리하는 무료 주소 정리 도구입니다. 입력한 주소는 서버로 전송되지 않습니다.">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/tools/address-cleaner.html">
+<meta property="og:title" content="주소 정리 도구 | 지도공방">
+<meta property="og:description" content="엑셀 주소 목록의 괄호, 쉼표 뒤 상세주소, 중복 공백, 시도 약칭을 한 번에 정리하는 무료 주소 정리 도구입니다. 입력한 주소는 서버로 전송되지 않습니다.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/tools/address-cleaner.html">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
+<meta property="og:site_name" content="지도공방">
+<meta property="og:locale" content="ko_KR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"주소 정리 도구","description":"엑셀 주소 목록의 괄호, 쉼표 뒤 상세주소, 중복 공백, 시도 약칭을 한 번에 정리하는 무료 주소 정리 도구입니다. 입력한 주소는 서버로 전송되지 않습니다.","url":"https://gis-portfolio.bdong8896.workers.dev/tools/address-cleaner.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"publisher":{"@type":"Organization","name":"지도공방"}}
+</script>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>지도공방</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../index.html#services">서비스</a>
+      <a href="../index.html#work">작업 사례</a>
+      <a href="../index.html#notes">기술 공유</a>
+      <a href="../resources.html" aria-current="page">자료실</a>
+      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <section class="section" style="border-top:none">
+    <div class="wrap">
+      <a class="back-link" href="../resources.html">← 자료실</a>
+      <div class="head"><span class="eyebrow">FREE TOOL</span><h1 class="tool-title">주소 정리 도구</h1><p class="tool-lead">엑셀 주소 열을 붙여넣으면 괄호·쉼표 뒤 상세주소·중복 공백·시도 약칭을 규칙대로 정리해 줍니다.</p></div>
+
+      <div class="tool-box">
+        <div class="field">
+          <label for="inp">주소 목록 (엑셀 열을 그대로 붙여넣으세요. 한 줄에 주소 하나)</label>
+          <textarea id="inp" spellcheck="false" placeholder="예)
+서울 중구 세종대로 110 (시청)
+부산광역시  해운대구 우동 1500, 3층"></textarea>
+        </div>
+        <div class="checks" style="margin-top:16px">
+          <label><input type="checkbox" id="o-nfkc" checked> 전각 문자·특수 공백 정규화</label>
+          <label><input type="checkbox" id="o-paren" checked> 괄호 안 내용 제거</label>
+          <label><input type="checkbox" id="o-comma" checked> 쉼표 뒤 상세주소 제거</label>
+          <label><input type="checkbox" id="o-space" checked> 연속 공백 정리</label>
+          <label><input type="checkbox" id="o-sido" checked> 시·도 약칭을 정식 명칭으로</label>
+          <label><input type="checkbox" id="o-new"> 개정된 명칭으로 바꾸기 (강원·전북)</label>
+        </div>
+        <div class="tool-actions">
+          <button class="btn btn-primary" id="run" type="button">정리</button>
+          <button class="btn btn-ghost" id="sample" type="button">예시 넣기</button>
+          <button class="btn btn-ghost" id="clear" type="button">지우기</button>
+        </div>
+      </div>
+
+      <div class="tool-box">
+        <div class="tool-actions" style="margin-top:0">
+          <button class="btn btn-ghost" id="copy" type="button">정리 결과 복사</button>
+          <button class="btn btn-ghost" id="csv" type="button">CSV 저장</button>
+        </div>
+        <div class="res-wrap res-scroll"><table class="res" id="res"><thead><tr><th>#</th><th>원본</th><th>정리 후</th></tr></thead><tbody></tbody></table></div>
+        <div class="summary" id="sum"></div>
+      </div>
+
+      <ul class="note-list">
+        <li>처리는 브라우저 안에서만 이루어지며 입력한 주소는 어디에도 전송되지 않습니다.</li>
+        <li>이 도구는 <b>주소 문자열을 정리</b>할 뿐, 도로명↔지번 변환이나 좌표 변환은 하지 않습니다. 변환은 자료실의 <a href="../resources.html">도로명 → 지번 변환기</a>를 사용하세요.</li>
+        <li>정리 후에도 건물 동·호수가 붙어 있는 주소는 검색이 실패할 수 있습니다. 기준과 예외는 <a href="../notes/address-cleanup.html">제각각인 주소 정리하기</a>에서 설명합니다.</li>
+      </ul>
+
+      <aside class="callout" style="margin-top:56px">
+        <b>업무에 맞춘 도구가 필요하신가요?</b>
+        <span>엑셀 일괄 처리, 사내 시스템 연동까지 필요에 맞게 만들어 드립니다.</span>
+        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
+    <a href="../resources.html">자료실로</a>
+  </div>
+</footer>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var SIDO={'서울':'서울특별시','부산':'부산광역시','대구':'대구광역시','인천':'인천광역시','광주':'광주광역시','대전':'대전광역시','울산':'울산광역시','세종':'세종특별자치시','경기':'경기도','강원':'강원도','충북':'충청북도','충남':'충청남도','전북':'전라북도','전남':'전라남도','경북':'경상북도','경남':'경상남도','제주':'제주특별자치도'};
+  var NEW={'강원도':'강원특별자치도','전라북도':'전북특별자치도'};
+  var inp=$('inp'), tb=$('res').tBodies[0], rows=[];
+  function clean(raw){
+    var s=String(raw==null?'':raw);
+    if($('o-nfkc').checked) s=s.normalize('NFKC').replace(/[\u00a0\u200b\u3000]/g,' ');
+    if($('o-paren').checked) s=s.replace(/\([^)]*\)/g,'').replace(/\[[^\]]*\]/g,'');
+    if($('o-comma').checked) s=s.replace(/,.*$/,'');
+    if($('o-space').checked) s=s.replace(/\s{2,}/g,' ');
+    s=s.trim();
+    var head=s.split(' ')[0], rest=s.slice(head.length);
+    if($('o-sido').checked && SIDO[head]){ head=SIDO[head]; }
+    if($('o-new').checked && NEW[head]){ head=NEW[head]; }
+    return (head+rest).trim();
+  }
+  function run(){
+    var lines=inp.value.split(/\r?\n/), changed=0, n=0;
+    tb.textContent=''; rows=[];
+    lines.forEach(function(l){
+      if(!l.trim()) return;
+      n++;
+      var c=clean(l), tr=document.createElement('tr');
+      var chg=(c!==l.trim()); if(chg){ changed++; tr.className='chg'; }
+      rows.push({a:l.trim(), b:c});
+      [n, l.trim(), c].forEach(function(t,i){
+        var td=document.createElement('td'); td.textContent=t; if(i===2) td.className='after'; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    $('sum').textContent=n?('총 '+n+'건 · 변경 '+changed+'건 · 변경 없음 '+(n-changed)+'건'):'';
+  }
+  $('run').addEventListener('click',run);
+  inp.addEventListener('input',run);
+  document.querySelectorAll('.checks input').forEach(function(e){e.addEventListener('change',run)});
+  $('sample').addEventListener('click',function(){
+    inp.value='서울 중구 세종대로 110 (시청)\n부산광역시  해운대구 우동 1500, 3층\n경기 성남시 분당구 판교역로 235 (삼평동)\n강원 춘천시 중앙로 1\n제주특별자치도 제주시 첨단로 242';
+    run();
+  });
+  $('clear').addEventListener('click',function(){ inp.value=''; run(); });
+  $('copy').addEventListener('click',function(){
+    var s=rows.map(function(r){return r.b}).join('\n'), b=this;
+    if(!s) return;
+    (navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(function(){
+      b.textContent='복사됨'; setTimeout(function(){b.textContent='정리 결과 복사'},1500);
+    },function(){ window.prompt('복사하세요 (Ctrl+C)', s); });
+  });
+  $('csv').addEventListener('click',function(){
+    var q=function(v){return '"'+String(v).replace(/"/g,'""')+'"'};
+    var lines=['"원본","정리후"'].concat(rows.map(function(r){return q(r.a)+','+q(r.b)}));
+    var blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='주소정리결과.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  run();
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>좌표계 변환기 | 지도공방</title>
+<meta name="description" content="WGS84(4326), 웹 메르카토르(3857), UTM-K(5179), 중부원점(5181·5186·5174) 좌표를 브라우저에서 바로 변환하는 무료 좌표계 변환기입니다.">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/tools/coordinate-converter.html">
+<meta property="og:title" content="좌표계 변환기 | 지도공방">
+<meta property="og:description" content="WGS84(4326), 웹 메르카토르(3857), UTM-K(5179), 중부원점(5181·5186·5174) 좌표를 브라우저에서 바로 변환하는 무료 좌표계 변환기입니다.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/tools/coordinate-converter.html">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
+<meta property="og:site_name" content="지도공방">
+<meta property="og:locale" content="ko_KR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"좌표계 변환기","description":"WGS84(4326), 웹 메르카토르(3857), UTM-K(5179), 중부원점(5181·5186·5174) 좌표를 브라우저에서 바로 변환하는 무료 좌표계 변환기입니다.","url":"https://gis-portfolio.bdong8896.workers.dev/tools/coordinate-converter.html","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"publisher":{"@type":"Organization","name":"지도공방"}}
+</script>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>지도공방</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../index.html#services">서비스</a>
+      <a href="../index.html#work">작업 사례</a>
+      <a href="../index.html#notes">기술 공유</a>
+      <a href="../resources.html" aria-current="page">자료실</a>
+      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <section class="section" style="border-top:none">
+    <div class="wrap">
+      <a class="back-link" href="../resources.html">← 자료실</a>
+      <div class="head"><span class="eyebrow">FREE TOOL</span><h1 class="tool-title">좌표계 변환기</h1><p class="tool-lead">WGS84 경위도, 웹 메르카토르, UTM-K, 중부원점 계열 좌표를 서로 변환합니다. 여러 점을 한꺼번에 붙여넣을 수 있습니다.</p></div>
+
+      <div class="tool-box">
+        <div class="tool-row">
+          <div class="field"><label for="from">입력 좌표계</label>
+            <select id="from"></select></div>
+          <div class="field"><label for="to">변환할 좌표계</label>
+            <select id="to"></select></div>
+        </div>
+        <div class="checks" id="swapRow" style="margin-top:14px">
+          <label><input type="checkbox" id="swap"> 입력이 <b>위도, 경도</b> 순서입니다</label>
+        </div>
+        <div class="field" style="margin-top:16px">
+          <label for="inp">좌표 입력 (한 줄에 한 점, 쉼표·공백·탭으로 구분)</label>
+          <textarea id="inp" spellcheck="false" placeholder="예) 126.9779692, 37.5663174"></textarea>
+        </div>
+        <div class="tool-actions">
+          <button class="btn btn-primary" id="run" type="button">변환</button>
+          <button class="btn btn-ghost" id="sample" type="button">예시 넣기</button>
+          <button class="btn btn-ghost" id="clear" type="button">지우기</button>
+        </div>
+        <p class="tool-warn" id="warn" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="tool-box">
+        <div class="tool-actions" style="margin-top:0">
+          <button class="btn btn-ghost" id="copy" type="button">결과 복사</button>
+          <button class="btn btn-ghost" id="csv" type="button">CSV 저장</button>
+        </div>
+        <div class="res-wrap res-scroll"><table class="res" id="res"><thead><tr><th>#</th><th id="h1">입력 X</th><th id="h2">입력 Y</th><th id="h3">결과 X</th><th id="h4">결과 Y</th></tr></thead><tbody></tbody></table></div>
+        <div class="summary" id="sum"></div>
+      </div>
+
+      <ul class="note-list">
+        <li>변환은 브라우저 안에서만 이루어지며 입력한 좌표는 어디에도 전송되지 않습니다.</li>
+        <li>경위도(EPSG:4326)는 <b>경도(X), 위도(Y)</b> 순서로 입력합니다. 위도가 먼저인 데이터는 위 체크박스를 켜세요.</li>
+        <li>EPSG:5174(구 Bessel 중부원점)는 측지 변환 방식에 따라 결과가 수 m 안팎 달라질 수 있어, 정밀 측량용으로는 공식 변환 파라미터를 확인하세요.</li>
+        <li>좌표계가 어긋나는 원인은 <a href="../notes/coordinate-systems.html">좌표계가 어긋날 때: EPSG:5181과 3857 다루기</a>에서 자세히 설명합니다.</li>
+      </ul>
+
+      <aside class="callout" style="margin-top:56px">
+        <b>업무에 맞춘 도구가 필요하신가요?</b>
+        <span>엑셀 일괄 처리, 사내 시스템 연동까지 필요에 맞게 만들어 드립니다.</span>
+        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
+    <a href="../resources.html">자료실로</a>
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
+<script>
+(function(){
+  var DEFS = {
+    'EPSG:4326': {name:'WGS84 경위도 (EPSG:4326)', geo:true},
+    'EPSG:3857': {name:'웹 메르카토르 (EPSG:3857)'},
+    'EPSG:5179': {name:'UTM-K (EPSG:5179)', def:'+proj=tmerc +lat_0=38 +lon_0=127.5 +k=0.9996 +x_0=1000000 +y_0=2000000 +ellps=GRS80 +units=m +no_defs'},
+    'EPSG:5181': {name:'중부원점 Y500000 (EPSG:5181)', def:'+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +units=m +no_defs'},
+    'EPSG:5186': {name:'중부원점 Y600000 (EPSG:5186)', def:'+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=600000 +ellps=GRS80 +units=m +no_defs'},
+    'EPSG:5174': {name:'구 Bessel 중부원점 (EPSG:5174)', def:'+proj=tmerc +lat_0=38 +lon_0=127.0028902777778 +k=1 +x_0=200000 +y_0=500000 +ellps=bessel +units=m +towgs84=-115.80,474.99,674.11,1.16,-2.31,-1.63,6.43 +no_defs'}
+  };
+  Object.keys(DEFS).forEach(function(k){ if(DEFS[k].def) proj4.defs(k, DEFS[k].def); });
+  var $=function(id){return document.getElementById(id)};
+  var from=$('from'), to=$('to'), inp=$('inp'), warn=$('warn'), swapRow=$('swapRow'), swap=$('swap');
+  Object.keys(DEFS).forEach(function(k){
+    from.add(new Option(DEFS[k].name,k)); to.add(new Option(DEFS[k].name,k));
+  });
+  from.value='EPSG:4326'; to.value='EPSG:5181';
+  var rows=[];
+
+  function isGeo(c){ return c==='EPSG:4326'; }
+  function fmt(v,geo){ return isFinite(v) ? v.toFixed(geo?8:3) : '—'; }
+  function parse(){
+    var out=[];
+    inp.value.split(/\r?\n/).forEach(function(line){
+      line=line.trim(); if(!line) return;
+      var p=line.split(/[\s,;]+/).filter(Boolean);
+      var a=parseFloat(p[0]), b=parseFloat(p[1]);
+      out.push({raw:line, a:a, b:b, ok:p.length>=2 && isFinite(a) && isFinite(b)});
+    });
+    return out;
+  }
+  function run(){
+    var f=from.value, t=to.value, g=isGeo(f), tg=isGeo(t);
+    swapRow.style.display=g?'':'none';
+    $('h1').textContent=g?(swap.checked?'입력 위도':'입력 경도'):'입력 X';
+    $('h2').textContent=g?(swap.checked?'입력 경도':'입력 위도'):'입력 Y';
+    $('h3').textContent=tg?'결과 경도':'결과 X';
+    $('h4').textContent=tg?'결과 위도':'결과 Y';
+    var items=parse(), tb=$('res').tBodies[0], msg=[], bad=0, hint=0;
+    tb.textContent=''; rows=[];
+    items.forEach(function(it,i){
+      var x=it.a, y=it.b, rx=NaN, ry=NaN;
+      if(it.ok){
+        if(g && swap.checked){ var tmp=x; x=y; y=tmp; }
+        try{ var r=proj4(f,t,[x,y]); rx=r[0]; ry=r[1]; }catch(e){}
+        if(!isFinite(rx)||!isFinite(ry)) bad++;
+        if(g && (Math.abs(x)>180||Math.abs(y)>90)) hint|=1;
+        if(g && x>=30 && x<=45 && y>=120 && y<=135) hint|=2;
+        if(!g && Math.abs(x)<=360 && Math.abs(y)<=180) hint|=4;
+      } else bad++;
+      rows.push({n:i+1, ix:it.a, iy:it.b, rx:rx, ry:ry, ok:it.ok && isFinite(rx) && isFinite(ry)});
+      var tr=document.createElement('tr'); if(!rows[i].ok) tr.className='bad';
+      var cells=[i+1, it.ok?it.a:it.raw, it.ok?it.b:'', fmt(rx,tg), fmt(ry,tg)];
+      cells.forEach(function(c){ var td=document.createElement('td'); td.textContent=c; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    if(hint&2) msg.push('위도, 경도 순서로 입력한 것 같습니다. 위의 체크박스를 켜 보세요.');
+    else if(hint&1) msg.push('경도·위도 범위를 벗어난 값이 있습니다. 입력 좌표계를 확인하세요.');
+    if(hint&4) msg.push('값이 경위도처럼 작습니다. 입력 좌표계가 맞는지 확인하세요.');
+    warn.textContent=msg.join(' ');
+    $('sum').textContent=items.length?('총 '+items.length+'건 · 변환 '+(items.length-bad)+'건'+(bad?(' · 실패 '+bad+'건'):'')):'';
+  }
+  function text(sep){
+    var tg=isGeo(to.value);
+    return rows.filter(function(r){return r.ok}).map(function(r){
+      return fmt(r.rx,tg)+sep+fmt(r.ry,tg);
+    }).join('\n');
+  }
+  $('run').addEventListener('click',run);
+  [from,to,swap].forEach(function(e){e.addEventListener('change',run)});
+  inp.addEventListener('input',run);
+  $('sample').addEventListener('click',function(){
+    from.value='EPSG:4326'; to.value='EPSG:5181'; swap.checked=false;
+    inp.value='126.9779692, 37.5663174\n129.0756416, 35.1795543\n126.5311884, 33.4996213';
+    run();
+  });
+  $('clear').addEventListener('click',function(){ inp.value=''; run(); });
+  $('copy').addEventListener('click',function(){
+    var s=text('\t'), b=this;
+    if(!s) return;
+    (navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(function(){
+      b.textContent='복사됨'; setTimeout(function(){b.textContent='결과 복사'},1500);
+    },function(){ window.prompt('복사하세요 (Ctrl+C)', s); });
+  });
+  $('csv').addEventListener('click',function(){
+    var tg=isGeo(to.value);
+    var lines=['번호,입력X,입력Y,'+(tg?'결과경도,결과위도':'결과X,결과Y')];
+    rows.forEach(function(r){ lines.push([r.n,r.ix,r.iy,fmt(r.rx,tg),fmt(r.ry,tg)].join(',')); });
+    var blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='좌표변환결과.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  run();
+})();
+</script>
+<script src="../site.js" defer></script>
+</body>
+</html>
