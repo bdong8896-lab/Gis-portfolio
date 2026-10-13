@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도로명→지번 변환기</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=90c5d8728612cc9d94ec988db7a58fb2&libraries=services&autoload=false"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif; background: #f0f2f5; min-height: 100vh; padding: 24px; }
+.wrap { max-width: 900px; margin: 0 auto; }
+h1 { font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+.sub { font-size: 12px; color: #888; margin-bottom: 22px; }
+.card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+.card-title { font-size: 13px; font-weight: 700; color: #2c3e50; margin-bottom: 12px; }
+.status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 0; }
+.badge-ok   { background: #d5f5e3; color: #1a7a40; }
+.badge-err  { background: #fadbd8; color: #922b21; }
+.badge-loading { background: #eaf4fb; color: #2471a3; }
+label.upload { border: 2px dashed #b0bec5; border-radius: 8px; padding: 28px 20px; text-align: center; display: block; cursor: pointer; transition: border-color .2s; }
+label.upload:hover { border-color: #4a90d9; }
+label.upload input { display: none; }
+.upload-icon { font-size: 28px; margin-bottom: 6px; }
+.upload-name { font-size: 14px; color: #555; margin-bottom: 4px; }
+.upload-hint { font-size: 11px; color: #aaa; }
+.settings { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+.setting-item { display: flex; align-items: center; gap: 6px; }
+.setting-label { font-size: 12px; color: #555; }
+select, input[type=number] { border: 1px solid #ccc; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
+.row-info { font-size: 11px; color: #777; margin-top: 10px; }
+.prog-bar { width: 100%; height: 12px; background: #e8ecef; border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, #4a90d9, #27ae60); border-radius: 6px; transition: width .3s; }
+.status-text { font-size: 12px; color: #555; margin-bottom: 10px; }
+.stats { display: flex; gap: 20px; font-size: 12px; margin-bottom: 12px; }
+.stat-ok   { color: #27ae60; }
+.stat-same { color: #888; }
+.stat-fail { color: #e74c3c; }
+.btns { display: flex; gap: 10px; }
+button { padding: 10px 20px; border: none; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.btn-blue { background: #4a90d9; color: #fff; }
+.btn-blue:hover { background: #357abd; }
+.btn-red  { background: #e74c3c; color: #fff; }
+.log-box { background: #1a1a2e; color: #a8d8ea; border-radius: 7px; padding: 12px; font-size: 11px; font-family: monospace; max-height: 150px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+th { background: #34495e; color: #fff; padding: 7px 10px; text-align: left; }
+td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; }
+tr:nth-child(even) td { background: #f8f9fa; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 10px; }
+.badge-converted { background: #d5f5e3; color: #1a7a40; }
+.badge-same      { background: #fef9e7; color: #b27a00; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🗺️ 도로명주소 → 지번주소 변환기</h1>
+  <p class="sub">카카오 Maps API로 정확한 지번주소로 변환합니다.</p>
+
+  <!-- API 상태 -->
+  <div class="card">
+    <div class="card-title">API 상태</div>
+    <span class="status-badge badge-loading" id="apiStatus">⏳ 카카오 SDK 초기화 중...</span>
+  </div>
+
+  <!-- ① 파일 업로드 -->
+  <div class="card">
+    <div class="card-title">① 엑셀 파일 업로드</div>
+    <label class="upload">
+      <div class="upload-icon">📂</div>
+      <div class="upload-name" id="uploadName">클릭하여 .xlsx 파일 선택</div>
+      <div class="upload-hint">도로명 열과 지번 열이 있는 엑셀 파일</div>
+      <input type="file" accept=".xlsx,.xls" onchange="onFileChange(event)">
+    </label>
+  </div>
+
+  <!-- ② 열 설정 -->
+  <div class="card" id="settingsCard" style="display:none">
+    <div class="card-title">② 열 설정 확인</div>
+    <div class="settings">
+      <div class="setting-item">
+        <span class="setting-label">헤더 행</span>
+        <input type="number" id="headerRow" value="1" min="1" max="10" style="width:56px" onchange="reloadMeta()">
+      </div>
+      <div class="setting-item">
+        <span class="setting-label">도로명 열</span>
+        <select id="roadColSel" onchange="roadCol = parseInt(this.value)"></select>
+      </div>
+      <div class="setting-item">
+        <span class="setting-label">지번 결과 열</span>
+        <select id="jibunColSel" onchange="jibunCol = parseInt(this.value)"></select>
+      </div>
+    </div>
+    <div class="row-info" id="rowInfo"></div>
+  </div>
+
+  <!-- ③ 실행 -->
+  <div class="card" id="runCard" style="display:none">
+    <div class="card-title">③ 변환 실행</div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="status-text" id="statusText">변환 시작 버튼을 눌러주세요.</div>
+    <div class="stats" id="statsDiv" style="display:none">
+      <span class="stat-ok"   id="statOk"></span>
+      <span class="stat-same" id="statSame"></span>
+      <span class="stat-fail" id="statFail"></span>
+    </div>
+    <div class="btns">
+      <button class="btn-blue" id="startBtn" onclick="startConversion()">▶ 변환 시작</button>
+      <button class="btn-red"  id="stopBtn"  onclick="stopConversion()" style="display:none">⏹ 중단</button>
+    </div>
+  </div>
+
+  <!-- 로그 -->
+  <div class="card" id="logCard" style="display:none">
+    <div class="card-title">처리 로그</div>
+    <div class="log-box" id="logBox"></div>
+  </div>
+
+  <!-- 미리보기 -->
+  <div class="card" id="previewCard" style="display:none">
+    <div class="card-title">변환 결과 미리보기 (최근 10건)</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>도로명주소</th><th>변환된 지번주소</th><th>상태</th></tr></thead>
+        <tbody id="previewBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 전역 상태 ──────────────────────────────────
+let geocoder  = null;
+let workbook  = null;
+let fileName  = "";
+let headerRow = 1;
+let roadCol   = 1;
+let jibunCol  = 2;
+let totalRows = 0;
+let aborted   = false;
+let jsonData  = [];
+let resultRows= [];
+
+// ── 카카오 SDK 자동 초기화 ────────────────────
+window.onload = function() {
+  kakao.maps.load(() => {
+    try {
+      geocoder = new kakao.maps.services.Geocoder();
+      // 간단 테스트
+      geocoder.addressSearch("서울특별시 중구 세종대로 110", (result, status) => {
+        const el = document.getElementById("apiStatus");
+        if (status === kakao.maps.services.Status.OK) {
+          el.textContent = "✅ 카카오 API 준비 완료 — 파일을 업로드하세요";
+          el.className = "status-badge badge-ok";
+        } else {
+          el.textContent = "✅ SDK 로드 완료";
+          el.className = "status-badge badge-ok";
+        }
+      });
+    } catch(e) {
+      const el = document.getElementById("apiStatus");
+      el.textContent = "❌ SDK 초기화 실패: " + e.message + " (도메인 등록 필요: kakao developers → 플랫폼 → Web → 사이트 도메인에 현재 URL 추가)";
+      el.className = "status-badge badge-err";
+    }
+  });
+};
+
+// ── 파일 업로드 ────────────────────────────────
+function onFileChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  fileName = file.name;
+  document.getElementById("uploadName").textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    workbook = XLSX.read(ev.target.result, { type: "array" });
+    reloadMeta();
+    document.getElementById("settingsCard").style.display = "";
+    document.getElementById("runCard").style.display = "";
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function reloadMeta() {
+  if (!workbook) return;
+  headerRow = parseInt(document.getElementById("headerRow").value) || 1;
+  const ws  = workbook.Sheets[workbook.SheetNames[0]];
+  jsonData  = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+  const headers = (jsonData[headerRow - 1] || []).map(String);
+  const rows = jsonData.slice(headerRow).filter(r => r.some(c => String(c).trim() !== ""));
+  totalRows = rows.length;
+
+  ["roadColSel","jibunColSel"].forEach(id => {
+    document.getElementById(id).innerHTML = headers.map((h,i) =>
+      `<option value="${i}">${String.fromCharCode(65+i)}열: ${h}</option>`
+    ).join("");
+  });
+
+  const rIdx = headers.findIndex(h => /도로명|도로|road/i.test(h));
+  const jIdx = headers.findIndex(h => /지번|jibun/i.test(h));
+  roadCol  = rIdx >= 0 ? rIdx : 1;
+  jibunCol = jIdx >= 0 ? jIdx : 2;
+  document.getElementById("roadColSel").value  = roadCol;
+  document.getElementById("jibunColSel").value = jibunCol;
+
+  document.getElementById("rowInfo").innerHTML =
+    `총 <b>${totalRows.toLocaleString()}</b>개 행 · 예상 소요 시간: 약 <b>${Math.ceil(totalRows * 0.1 / 60)}분</b>`;
+}
+
+// ── 주소 변환 (Promise) ───────────────────────
+function convertOne(addr) {
+  return new Promise((resolve) => {
+    if (!addr) { resolve(addr); return; }
+    const clean = addr.replace(/\([^)]*\)/g,"").replace(/,.*$/,"").replace(/\s{2,}/g," ").trim();
+    if (!clean) { resolve(addr); return; }
+    geocoder.addressSearch(clean, (result, status) => {
+      if (status === kakao.maps.services.Status.OK && result.length > 0) {
+        resolve(result[0].address?.address_name || addr);
+      } else {
+        resolve(addr);
+      }
+    });
+  });
+}
+
+// ── 변환 실행 ──────────────────────────────────
+async function startConversion() {
+  if (!geocoder) { alert("API가 아직 초기화되지 않았습니다. 잠시 후 다시 시도하세요."); return; }
+  if (!workbook) { alert("엑셀 파일을 먼저 업로드하세요."); return; }
+
+  aborted = false;
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("stopBtn").style.display  = "";
+  document.getElementById("logCard").style.display  = "";
+  document.getElementById("logBox").textContent     = "";
+  document.getElementById("statsDiv").style.display = "none";
+
+  const ws  = workbook.Sheets[workbook.SheetNames[0]];
+  jsonData  = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+  const data = jsonData.slice(headerRow).filter(r => r.some(c => String(c).trim() !== ""));
+
+  addLog(`변환 시작 · 총 ${data.length.toLocaleString()}개 주소`);
+  resultRows = data.map(r => [...r]);
+
+  let cvt = 0, same = 0, fail = 0;
+  const preview = [];
+
+  for (let i = 0; i < data.length; i++) {
+    if (aborted) { addLog("⏹ 중단됨"); break; }
+
+    const road = String(data[i][roadCol] || "").trim();
+    let jibun  = road;
+
+    if (road) {
+      try {
+        jibun = await convertOne(road);
+      } catch(e) {
+        fail++; jibun = road;
+        if (fail <= 3) addLog(`❌ [${i+1}] 오류: ${e.message}`);
+      }
+    }
+
+    while (resultRows[i].length <= jibunCol) resultRows[i].push("");
+    resultRows[i][jibunCol] = jibun;
+
+    if (jibun && jibun !== road) {
+      cvt++;
+      if (cvt <= 5 || i % 100 === 0)
+        addLog(`[${i+1}] ${road.slice(0,28)}… → ${jibun}`);
+    } else {
+      same++;
+    }
+
+    preview.unshift({ road, jibun, ok: jibun !== road });
+    if (preview.length > 10) preview.pop();
+    renderPreview(preview);
+
+    const pct = Math.round((i+1) / data.length * 100);
+    document.getElementById("progFill").style.width = pct + "%";
+    document.getElementById("statusText").textContent =
+      `처리 중: ${(i+1).toLocaleString()} / ${data.length.toLocaleString()} (${pct}%)`;
+
+    document.getElementById("statsDiv").style.display = "";
+    document.getElementById("statOk").textContent   = `✔ 변환: ${cvt.toLocaleString()}건`;
+    document.getElementById("statSame").textContent = `— 미검색: ${same.toLocaleString()}건`;
+    if (fail > 0) document.getElementById("statFail").textContent = `✗ 실패: ${fail.toLocaleString()}건`;
+
+    await new Promise(r => setTimeout(r, 80));
+  }
+
+  // 엑셀 저장
+  addLog("엑셀 파일 생성 중...");
+  const fullData = [...jsonData.slice(0, headerRow), ...resultRows];
+  const newWs   = XLSX.utils.aoa_to_sheet(fullData);
+  const origWs  = workbook.Sheets[workbook.SheetNames[0]];
+  if (origWs["!cols"]) {
+    newWs["!cols"] = [...origWs["!cols"]];
+    while (newWs["!cols"].length <= jibunCol) newWs["!cols"].push({});
+    if (!(newWs["!cols"][jibunCol]?.wch > 0)) newWs["!cols"][jibunCol] = { wch: 45 };
+  }
+  if (origWs["!merges"]) newWs["!merges"] = [...origWs["!merges"]];
+
+  const newWb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(newWb, newWs, workbook.SheetNames[0]);
+  const outName = fileName.replace(/\.(xlsx|xls)$/i,"") + "_지번변환.xlsx";
+  XLSX.writeFile(newWb, outName);
+
+  document.getElementById("statusText").textContent = `✅ 완료! "${outName}" 다운로드됨`;
+  addLog(`✅ 완료! 변환 ${cvt.toLocaleString()}건 / 미검색 ${same.toLocaleString()}건 / 실패 ${fail.toLocaleString()}건`);
+  document.getElementById("startBtn").style.display = "";
+  document.getElementById("startBtn").textContent   = "🔄 다시 변환";
+  document.getElementById("stopBtn").style.display  = "none";
+}
+
+function stopConversion() {
+  aborted = true;
+  document.getElementById("stopBtn").style.display  = "none";
+  document.getElementById("startBtn").style.display = "";
+}
+
+function addLog(msg) {
+  const box = document.getElementById("logBox");
+  const t   = new Date().toLocaleTimeString("ko");
+  box.innerHTML += (box.innerHTML ? "\n" : "") + `[${t}] ${msg}`;
+  box.scrollTop  = box.scrollHeight;
+}
+
+function renderPreview(rows) {
+  document.getElementById("previewCard").style.display = "";
+  document.getElementById("previewBody").innerHTML = rows.map(r => `
+    <tr>
+      <td style="color:#555">${r.road}</td>
+      <td style="color:#1a5276;font-weight:${r.ok?600:400}">${r.jibun}</td>
+      <td><span class="badge ${r.ok?'badge-converted':'badge-same'}">${r.ok?'변환됨':'미검색'}</span></td>
+    </tr>`).join("");
+}
+</script>
+</body>
+</html>

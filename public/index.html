@@ -125,6 +125,7 @@ h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;line-height:1.3}
 .files .info b{font-size:18px;font-weight:800;letter-spacing:-.02em}
 .files .info span{font-size:15px;line-height:1.6;color:var(--text-3)}
 .files .meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.files .acts{display:flex;flex-wrap:wrap;gap:10px}
 .files .btn{min-height:44px;padding:10px 18px;font-size:15px}
 
 /* process */
@@ -292,6 +293,10 @@ footer{border-top:1px solid var(--line)}
         <p class="note">업무에 바로 쓸 수 있는 양식과 자료를 무료로 내려받을 수 있습니다.</p>
       </div>
       <ul class="files">
+        <li>
+          <div class="info"><b>도로명 → 지번 변환기</b><span>도로명주소가 담긴 엑셀(.xlsx) 파일을 올리면 카카오 지도 API로 지번주소를 찾아 새 열에 채워 주는 변환 도구입니다. 브라우저에서 바로 실행되며, 변환된 엑셀 파일이 내려받아집니다.</span><span class="meta">HTML · 약 15KB · 인터넷 연결 필요</span></div>
+          <div class="acts"><a class="btn btn-primary" href="downloads/도로명_지번_변환기.html" target="_blank" rel="noopener">바로 실행</a><a class="btn btn-ghost" href="downloads/도로명_지번_변환기.html" download>다운로드</a></div>
+        </li>
         <li>
           <div class="info"><b>주소 일괄 변환용 엑셀 양식</b><span>도로명·지번 주소를 한 열에 모아 두면 일괄 정리와 변환 작업에 바로 쓸 수 있는 CSV 양식입니다.</span><span class="meta">CSV · UTF-8 · 엑셀에서 바로 열림</span></div>
           <a class="btn btn-ghost" href="downloads/address-template.csv" download>다운로드</a>
