@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GIS 개발 외주 · 웹 지도 · 공간데이터 처리 | bdong</title>
+<meta name="description" content="웹 지도 서비스, GIS 데스크톱·키오스크 앱, 주소 일괄 변환·지오코딩, 좌표계 변환, 서버 구축까지. 공공기관 GIS 시스템을 개발·운영해 온 개발자에게 맡기세요.">
+<meta name="keywords" content="GIS 개발, GIS 외주, 웹 지도 개발, 지도 개발 외주, OpenLayers, 브이월드, VWorld, 카카오맵 API, 주소 지번 변환, 지오코딩, 좌표 변환, 공간데이터 처리, Electron 지도">
+<link rel="canonical" href="https://bdong.pages.dev/">
+<meta property="og:title" content="GIS 개발 외주 · 웹 지도 · 공간데이터 처리 | bdong">
+<meta property="og:description" content="지도가 필요한 업무, 현장에서 쓰이는 시스템으로 만들어 드립니다.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bdong.pages.dev/">
+<meta property="og:image" content="https://bdong.pages.dev/og.png">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<!-- 검색엔진 소유 확인 태그: 구글 서치 콘솔 / 네이버 서치어드바이저에서 받은 meta 태그를 아래 두 줄 대신 붙여넣으세요 -->
+<!-- <meta name="google-site-verification" content="여기에_구글_코드"> -->
+<!-- <meta name="naver-site-verification" content="여기에_네이버_코드"> -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "bdong GIS",
+  "url": "https://bdong.pages.dev/",
+  "image": "https://bdong.pages.dev/og.png",
+  "description": "웹 지도 서비스, GIS 데스크톱·키오스크 앱, 주소·공간 데이터 처리, 서버 구축",
+  "areaServed": "KR",
+  "knowsAbout": ["GIS", "OpenLayers", "VWorld", "Kakao Maps", "Electron", "지오코딩", "좌표계 변환", "PMTiles"]
+}
+</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10161D; --bg-deep:#0B1016; --panel:#17202A; --line:#253240; --line-2:#2C3A48; --field:#3A4C5E;
+  --text:#E8ECEF; --text-2:#C9D2D9; --text-3:#B4C0CA; --muted:#9AA9B6;
+  --accent:#F2A541; --accent-hi:#FFC678; --steel:#4E6A82;
+  --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Gothic A1',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
+a{color:var(--accent)} a:hover{color:var(--accent-hi)}
+img,svg{display:block}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.section{padding:104px 0;border-top:1px solid var(--line)}
+.section.deep{background:var(--bg-deep)}
+.section.panel{background:var(--panel)}
+.eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--accent)}
+h1,h2,h3{margin:0;letter-spacing:-.03em}
+h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;line-height:1.3}
+.head{display:flex;flex-direction:column;gap:12px;margin-bottom:44px}
+.head.split{flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:14px 24px;border-radius:6px;font-weight:700;font-size:16px;text-decoration:none;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--bg);border:none}
+.btn-primary:hover{background:var(--accent-hi);color:var(--bg)}
+.btn-ghost{color:var(--text);border:1.5px solid var(--steel)}
+.btn-ghost:hover{color:var(--text);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* header */
+.top{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(16,22,29,.94);backdrop-filter:blur(6px);z-index:10}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;padding-top:14px;padding-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.brand b{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.brand small{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.nav{display:flex;flex-wrap:wrap;align-items:center;gap:4px 26px;font-size:15px;font-weight:600}
+.nav a{color:var(--text-2);text-decoration:none}
+.nav a:hover{color:var(--text)}
+.nav .btn{min-height:44px;padding:10px 18px;font-size:15px}
+.nav .btn-primary,.nav .btn-primary:hover{color:var(--bg)}
+
+/* hero */
+.hero{display:flex;flex-wrap:wrap;gap:56px;align-items:center;padding-top:96px;padding-bottom:104px}
+.hero-copy{flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:26px}
+.hero h1{font-size:clamp(34px,5vw,60px);line-height:1.2;font-weight:800;letter-spacing:-.035em}
+.hero p{margin:0;font-size:18px;line-height:1.75;color:var(--text-3);max-width:540px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+.map{flex:1 1 440px;min-width:0;border:1px solid var(--line-2);border-radius:12px;overflow:hidden;background:var(--panel)}
+.map-bar{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-2);font-family:var(--mono);font-size:12px;color:var(--muted)}
+.map-body{display:flex;min-height:360px}
+.layers{width:150px;flex-shrink:0;border-right:1px solid var(--line-2);padding:14px;display:flex;flex-direction:column;gap:10px;font-size:13px}
+.layers .t{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+.layers span.l{display:flex;gap:8px;align-items:center}
+.sw{width:10px;height:10px;border-radius:2px}
+.canvas{flex:1;position:relative;background:#121A22}
+.canvas svg{position:absolute;inset:0;width:100%;height:100%}
+.readout{position:absolute;right:14px;bottom:14px;background:rgba(16,22,29,.9);border:1px solid var(--line-2);border-radius:8px;padding:12px 14px;font-size:13px;display:flex;flex-direction:column;gap:4px;min-width:160px}
+.readout .v{font-family:var(--mono);color:var(--accent);font-size:15px}
+.readout .s{font-size:12px;color:var(--muted)}
+@media (max-width:520px){.layers{display:none}}
+
+/* services */
+.cards{display:flex;flex-wrap:wrap;gap:20px}
+.card{flex:1 1 260px;min-width:0;background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:30px 26px;display:flex;flex-direction:column;gap:14px}
+.card .no{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.card h3{font-size:21px;font-weight:800}
+.card p{margin:0;font-size:15px;line-height:1.7;color:var(--text-3)}
+.card .ex{font-size:14px;color:var(--text-2);line-height:1.6}
+.price{margin-top:auto;padding-top:16px;border-top:1px solid var(--line-2);display:flex;justify-content:space-between;align-items:baseline}
+.price span{font-size:13px;color:var(--muted)}
+.price b{font-family:var(--mono);font-weight:500;font-size:16px;color:var(--accent)}
+
+/* work */
+.note{margin:0;font-size:14px;color:var(--muted);max-width:380px;line-height:1.6}
+.case{display:flex;flex-wrap:wrap;gap:20px 48px;padding:34px 0;border-top:1px solid var(--line)}
+.case-l{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.case-l .type{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em}
+.case-l h3{font-size:22px;font-weight:800;line-height:1.4;letter-spacing:-.02em}
+.case-r{flex:2 1 460px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.case-r p{margin:0;font-size:16px;line-height:1.75;color:var(--text-2)}
+.case-r .tech{font-family:var(--mono);font-size:13px;color:var(--accent)}
+
+/* stack */
+.stack{display:flex;flex-wrap:wrap;gap:36px 48px}
+.stack > div{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.stack h3{font-size:15px;font-weight:700;letter-spacing:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips li{font-family:var(--mono);font-size:13px;padding:7px 12px;border:1px solid var(--line-2);border-radius:999px;color:var(--text-2)}
+
+/* process */
+.steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:20px}
+.steps li{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:12px;padding-top:20px;border-top:2px solid var(--accent)}
+.steps .n{font-family:var(--mono);font-size:13px;color:var(--accent)}
+.steps b{font-size:19px;font-weight:800}
+.steps span:last-child{font-size:15px;line-height:1.7;color:var(--text-3)}
+
+/* contact */
+.contact{display:flex;flex-wrap:wrap;gap:56px}
+.contact-l{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.contact-l p{margin:0;font-size:16px;line-height:1.75;color:var(--text-3)}
+.direct{display:flex;flex-direction:column;gap:10px;font-size:15px;margin-top:8px}
+.direct div{display:flex;gap:12px;flex-wrap:wrap}
+.direct span{color:var(--muted);width:72px}
+form{flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:18px}
+.row{display:flex;flex-wrap:wrap;gap:18px}
+.field{display:flex;flex-direction:column;gap:8px}
+.row .field{flex:1 1 200px}
+label{font-size:14px;font-weight:600}
+input,select,textarea{border-radius:6px;border:1px solid var(--field);background:var(--bg);color:var(--text);font-size:16px;font-family:inherit}
+input,select{height:50px;padding:0 14px}
+textarea{padding:14px;line-height:1.6;resize:vertical;min-height:150px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.hp{position:absolute;left:-9999px}
+button.btn{height:54px;justify-content:center;font-size:17px;font-weight:800;cursor:pointer}
+button.btn:disabled{opacity:.6;cursor:default}
+.status{margin:0;font-size:15px;min-height:1.5em}
+.status.ok{color:#8ED3A6}
+.status.err{color:#FF9B8A}
+
+/* phone */
+@media (max-width:640px){
+  .nav a:not(.btn){display:none}
+  .top .wrap{flex-wrap:nowrap}
+  .brand small{display:none}
+  .section{padding:72px 0}
+  .hero{padding-top:56px;padding-bottom:72px;gap:40px}
+  .head{margin-bottom:32px}
+  .hero p{font-size:16px}
+  .case{padding:26px 0}
+}
+
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;padding-top:36px;padding-bottom:36px;font-size:13px;color:#8494A2}
+footer{border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>[이름]</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="#services">서비스</a>
+      <a href="#work">작업 사례</a>
+      <a href="#stack">기술</a>
+      <a href="#process">진행 방식</a>
+      <a class="btn btn-primary" href="#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div class="hero-copy">
+      <span class="eyebrow">WEB MAP · DESKTOP GIS · SPATIAL DATA · SERVER</span>
+      <h1>지도가 필요한 업무,<br>현장에서 쓰이는 시스템으로<br>만들어 드립니다</h1>
+      <p>공공기관 GIS 시스템을 직접 개발하고 운영해 온 개발자입니다. 웹 지도와 오프라인 키오스크 앱, 주소·공간 데이터 처리, 서버 배포까지 한 사람이 끝까지 책임집니다.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#contact">무료 상담 신청</a>
+        <a class="btn btn-ghost" href="#work">작업 사례 보기</a>
+      </div>
+    </div>
+    <div class="map" aria-hidden="true">
+      <div class="map-bar"><span>EPSG:3857 · z17</span><span>VWorld · 위성 + 지적</span></div>
+      <div class="map-body">
+        <div class="layers">
+          <span class="t">LAYERS</span>
+          <span class="l"><span class="sw" style="background:#F2A541"></span>지적 경계</span>
+          <span class="l"><span class="sw" style="background:#5FA8D3"></span>용도지역</span>
+          <span class="l"><span class="sw" style="background:#7DB88F"></span>도로</span>
+          <span class="l"><span class="sw" style="border:1px solid #9AA9B6"></span>건물</span>
+        </div>
+        <div class="canvas">
+          <svg viewBox="0 0 320 360" preserveAspectRatio="xMidYMid slice">
+            <path d="M0 220 L120 180 L320 230 L320 360 L0 360 Z" fill="#1B3346" opacity=".8"/>
+            <path d="M-10 150 C80 140 160 170 330 120" fill="none" stroke="#7DB88F" stroke-width="6" opacity=".7"/>
+            <g fill="none" stroke="#3A4C5E"><path d="M40 0 L60 140 L20 360"/><path d="M150 0 L140 160 L170 360"/><path d="M240 0 L250 130 L230 360"/><path d="M0 70 L320 60"/><path d="M0 280 L320 300"/></g>
+            <path d="M140 160 L250 130 L262 230 L170 250 Z" fill="#F2A541" fill-opacity=".18" stroke="#F2A541" stroke-width="2"/>
+            <path d="M60 140 L140 160 L170 250 L80 260 Z" fill="none" stroke="#F2A541" stroke-dasharray="4 3"/>
+            <circle cx="205" cy="190" r="5" fill="#F2A541"/>
+          </svg>
+          <div class="readout"><b>편입 면적</b><span class="v">1,284.6 ㎡ · 37.2%</span><span class="s">예시 화면 · 자연녹지지역</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="services" class="section">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">01 / SERVICES</span><h2>이런 일을 맡길 수 있습니다</h2></div>
+      <div class="cards">
+        <article class="card"><span class="no">01</span><h3>웹 지도 서비스</h3><p>브라우저에서 바로 쓰는 업무용 지도. 지적·용도지역·건물 레이어와 검색, 면적 계산까지.</p><span class="ex">VWorld WMS/WFS · 카카오맵 · 분할 화면 비교</span><div class="price"><span>시작가</span><b>[000]만 원~</b></div></article>
+        <article class="card"><span class="no">02</span><h3>GIS 데스크톱 · 키오스크 앱</h3><p>인터넷이 제한된 환경이나 민원실 키오스크에서 돌아가는 설치형 지도 프로그램.</p><span class="ex">Electron · 오프라인 GeoJSON · 로드뷰 연동</span><div class="price"><span>시작가</span><b>[000]만 원~</b></div></article>
+        <article class="card"><span class="no">03</span><h3>주소 · 공간 데이터 처리</h3><p>엑셀 주소 일괄 정리, 도로명↔지번 변환, 좌표 변환, 지도용 타일 생성.</p><span class="ex">지오코딩 · 좌표계 변환 · PMTiles</span><div class="price"><span>시작가</span><b>[00]만 원~</b></div></article>
+        <article class="card"><span class="no">04</span><h3>서버 구축 · 배포</h3><p>만든 시스템을 서버에 올리고 안정적으로 돌아가게 설정합니다.</p><span class="ex">IIS ARR 프록시 · SSL · PM2 · 방화벽</span><div class="price"><span>시작가</span><b>[00]만 원~</b></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="section deep">
+    <div class="wrap">
+      <div class="head split">
+        <div class="head" style="margin:0"><span class="eyebrow">02 / SELECTED WORK</span><h2>실제로 해결한 문제들</h2></div>
+        <p class="note">발주처 정보와 화면은 보안상 비공개로 하고, 해결한 문제와 기술 중심으로 소개합니다.</p>
+      </div>
+      <article class="case"><div class="case-l"><span class="type">웹 GIS</span><h3>토지정보 조회 시스템</h3></div><div class="case-r"><p>위성영상 분할 화면, 지적·용도지역·건물·도로 레이어를 한 화면에 구성. 사업 구역에 걸린 필지의 편입 면적과 편입률을 자동 계산해 담당자의 수작업 계산을 없앴습니다.</p><span class="tech">OpenLayers · VWorld WFS/WMS · Turf.js · Kakao Maps</span></div></article>
+      <article class="case"><div class="case-l"><span class="type">데스크톱 GIS</span><h3>규제구역 GIS 뷰어</h3></div><div class="case-r"><p>구역 데이터를 오프라인으로 띄우고 클릭 한 번으로 로드뷰를 확인하는 설치형 프로그램. 좌표계 불일치(EPSG:5181 ↔ 3857)와 SDK 인증 문제를 해결했습니다.</p><span class="tech">Electron · OpenLayers · VWorld WMTS · Kakao Roadview</span></div></article>
+      <article class="case"><div class="case-l"><span class="type">데이터 처리</span><h3>주소 4천여 건 일괄 정비 · 변환 도구</h3></div><div class="case-r"><p>형식이 제각각인 도로명 주소 약 4,160건을 정규화하고, 지번 주소로 일괄 변환하는 브라우저 도구를 만들어 담당자가 직접 재사용할 수 있게 했습니다.</p><span class="tech">Python · openpyxl · Kakao Geocoder</span></div></article>
+      <article class="case"><div class="case-l"><span class="type">인프라</span><h3>업무 시스템 서버 구축</h3></div><div class="case-r"><p>외부 지도·주소 API를 내부망에서 안정적으로 쓰도록 리버스 프록시를 구성하고, 행정구역 코드 변경에 따른 경계 레이어 오류까지 대응했습니다.</p><span class="tech">IIS ARR · URL Rewrite · SSL · OpenSSH · PM2</span></div></article>
+    </div>
+  </section>
+
+  <section id="stack" class="section">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">03 / STACK</span><h2>다루는 기술</h2></div>
+      <div class="stack">
+        <div><h3>지도 · 프론트엔드</h3><ul class="chips"><li>OpenLayers</li><li>Kakao Maps SDK</li><li>Turf.js</li><li>JavaScript</li></ul></div>
+        <div><h3>데스크톱</h3><ul class="chips"><li>Electron</li><li>Node.js</li><li>IPC</li><li>오프라인 배포</li></ul></div>
+        <div><h3>공간 데이터</h3><ul class="chips"><li>VWorld API</li><li>GeoJSON</li><li>tippecanoe</li><li>PMTiles</li><li>EPSG 변환</li><li>Python</li></ul></div>
+        <div><h3>서버 · 운영</h3><ul class="chips"><li>IIS / ARR</li><li>PM2</li><li>OpenSSH</li><li>PowerShell</li><li>SSL</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process" class="section">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">04 / PROCESS</span><h2>진행 방식</h2></div>
+      <ol class="steps">
+        <li><span class="n">STEP 1</span><b>무료 상담</b><span>가지고 있는 데이터와 원하는 결과를 듣고 가능 여부를 먼저 알려드립니다.</span></li>
+        <li><span class="n">STEP 2</span><b>견적 · 범위 확정</b><span>기능 목록과 일정, 금액을 문서로 정리해 합의한 뒤 시작합니다.</span></li>
+        <li><span class="n">STEP 3</span><b>개발 · 중간 확인</b><span>실제로 동작하는 중간 결과물을 보여드리며 방향을 맞춥니다.</span></li>
+        <li><span class="n">STEP 4</span><b>납품 · 사후 지원</b><span>설치까지 마무리하고, 납품 후 [1]개월간 무상으로 오류를 수정합니다.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="contact" class="section panel">
+    <div class="wrap contact">
+      <div class="contact-l">
+        <span class="eyebrow">05 / CONTACT</span>
+        <h2>가지고 계신 데이터와<br>원하는 결과만 알려주세요</h2>
+        <p>엑셀 한 장, 도면 PDF 한 묶음이라도 괜찮습니다. 영업일 기준 [1]일 안에 가능 여부와 대략적인 견적을 회신드립니다.</p>
+        <div class="direct">
+          <div><span>이메일</span><a href="mailto:[이메일 주소]">[이메일 주소]</a></div>
+          <div><span>오픈채팅</span><a href="[카카오톡 오픈채팅 링크]" target="_blank" rel="noopener">[카카오톡 오픈채팅]</a></div>
+        </div>
+      </div>
+
+      <!-- 문의 폼: Web3Forms로 메일 전송 (access_key 적용 완료) -->
+      <form id="contact-form" action="https://api.web3forms.com/submit" method="POST" novalidate>
+        <input type="hidden" name="access_key" value="ef516f1c-88a0-4d09-9631-94ef1844d178">
+        <input type="hidden" name="subject" value="[포트폴리오] 새 프로젝트 문의">
+        <input type="hidden" name="from_name" value="GIS 포트폴리오 사이트">
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="row">
+          <div class="field"><label for="c-name">이름 · 소속</label><input id="c-name" name="name" type="text" required autocomplete="name"></div>
+          <div class="field"><label for="c-mail">회신받을 이메일</label><input id="c-mail" name="email" type="email" required autocomplete="email"></div>
+        </div>
+        <div class="field"><label for="c-type">의뢰 유형</label>
+          <select id="c-type" name="type">
+            <option>웹 지도 서비스</option>
+            <option>GIS 데스크톱 · 키오스크 앱</option>
+            <option>주소 · 공간 데이터 처리</option>
+            <option>서버 구축 · 배포</option>
+            <option>기타 · 상담</option>
+          </select>
+        </div>
+        <div class="field"><label for="c-msg">프로젝트 내용</label><textarea id="c-msg" name="message" rows="6" required placeholder="어떤 데이터가 있고, 어떤 화면이나 결과물이 필요한지 적어주세요."></textarea></div>
+        <button class="btn btn-primary" type="submit">문의 보내기</button>
+        <p id="form-status" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> [이름] · GIS Developer</span>
+    <span>[사업자 정보 — 등록 후 기재]</span>
+  </div>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+const form = document.getElementById('contact-form');
+const statusEl = document.getElementById('form-status');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  statusEl.className = 'status';
+  if (!form.checkValidity()) {
+    statusEl.textContent = '이름, 이메일, 프로젝트 내용을 모두 입력해 주세요.';
+    statusEl.classList.add('err');
+    return;
+  }
+  const btn = form.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  statusEl.textContent = '보내는 중입니다…';
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(Object.fromEntries(new FormData(form)))
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      statusEl.textContent = '문의가 접수되었습니다. 확인 후 이메일로 회신드리겠습니다.';
+      statusEl.classList.add('ok');
+      form.reset();
+    } else {
+      throw new Error(data.message || 'failed');
+    }
+  } catch (err) {
+    statusEl.textContent = '전송에 실패했습니다. 잠시 후 다시 시도하거나 이메일로 직접 연락 주세요.';
+    statusEl.classList.add('err');
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
