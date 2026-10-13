@@ -215,3 +215,13 @@ footer{border-top:1px solid var(--line)}
 .big{font-family:var(--mono);font-size:22px;color:var(--accent)}
 .note-list{margin:28px 0 0;padding-left:20px;color:var(--text-3);font-size:15px;line-height:1.85}
 .note-list li{margin-bottom:6px}
+
+/* faq */
+.faq{max-width:860px;border-top:1px solid var(--line-2)}
+.qa{border-bottom:1px solid var(--line-2)}
+.qa summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 0;font-size:18px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"+";flex-shrink:0;font-family:var(--mono);font-size:22px;color:var(--accent);transition:transform .2s}
+.qa[open] summary::after{content:"\2212"}
+.qa summary:hover{color:var(--accent-hi)}
+.qa p{margin:0 0 24px;padding-right:40px;font-size:16px;line-height:1.85;color:var(--text-3)}
