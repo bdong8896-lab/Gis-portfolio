@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기 | 지도공방</title>
+<meta name="description" content="수십 MB 경계 데이터를 tippecanoe로 PMTiles로 바꿔 서버 없이 정적 파일로 서비스하는 흐름과, OpenLayers 연결, 용량 한도 주의점을 정리했습니다.">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/notes/geojson-to-pmtiles.html">
+<meta property="og:title" content="큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기 | 지도공방">
+<meta property="og:description" content="수십 MB 경계 데이터를 tippecanoe로 PMTiles로 바꿔 서버 없이 정적 파일로 서비스하는 흐름과, OpenLayers 연결, 용량 한도 주의점을 정리했습니다.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/notes/geojson-to-pmtiles.html">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
+<meta property="og:site_name" content="지도공방">
+<meta property="og:locale" content="ko_KR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기","description":"수십 MB 경계 데이터를 tippecanoe로 PMTiles로 바꿔 서버 없이 정적 파일로 서비스하는 흐름과, OpenLayers 연결, 용량 한도 주의점을 정리했습니다.","datePublished":"2026-10-13","dateModified":"2026-10-13","inLanguage":"ko","author":{"@type":"Organization","name":"지도공방"},"publisher":{"@type":"Organization","name":"지도공방"},"mainEntityOfPage":"https://gis-portfolio.bdong8896.workers.dev/notes/geojson-to-pmtiles.html"}
+</script>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>지도공방</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../index.html#services">서비스</a>
+      <a href="../index.html#work">작업 사례</a>
+      <a href="../index.html#notes" aria-current="page">기술 공유</a>
+      <a href="../resources.html">자료실</a>
+      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <article class="section prose-wrap" style="border-top:none">
+    <div class="wrap prose">
+      <a class="back" href="../index.html#notes">← 기술 공유</a>
+      <span class="eyebrow">NOTE 03</span>
+      <h1>큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기</h1>
+      <p class="lead">수십 MB 경계 데이터를 tippecanoe로 PMTiles로 바꿔 서버 없이 정적 파일로 서비스하는 흐름과, OpenLayers 연결, 용량 한도 주의점을 정리했습니다.</p>
+      <p class="pub">2026.10.13 작성</p>
+
+      <h2>GeoJSON이 느려지는 이유</h2>
+      <p>GeoJSON은 파일 전체를 내려받아 브라우저가 한 번에 파싱합니다. 행정구역이나 필지 경계처럼 데이터가 커지면 <b>첫 화면이 늦게 뜨고, 확대·축소 때마다 버벅임</b>이 생깁니다. 지도에는 지금 보이는 영역과 줌 수준에 필요한 만큼만 있으면 됩니다. 그 방식이 <b>벡터 타일</b>이고, PMTiles는 그 타일들을 파일 하나에 담은 형식입니다.</p>
+
+      <h2>PMTiles의 장점</h2>
+      <ul>
+        <li><b>타일 서버가 필요 없습니다.</b> 파일 하나를 정적 호스팅에 올리면 됩니다.</li>
+        <li>브라우저가 HTTP Range 요청으로 <b>필요한 타일 부분만</b> 가져옵니다.</li>
+        <li>OpenLayers, MapLibre 같은 일반 지도 라이브러리에서 쓸 수 있습니다.</li>
+      </ul>
+
+      <h2>변환 순서</h2>
+      <h3>1. 입력을 4326 GeoJSON으로 맞추기</h3>
+      <p>tippecanoe는 경위도(EPSG:4326) 좌표를 기대합니다. 셰이프파일이나 다른 좌표계 데이터는 먼저 변환합니다.</p>
+      <pre><code># 셰이프파일 → 4326 GeoJSON (한글 속성이 깨지면 인코딩 지정)
+ogr2ogr -f GeoJSON -t_srs EPSG:4326 \
+  -oo ENCODING=CP949 zones.geojson zones.shp</code></pre>
+
+      <h3>2. tippecanoe로 PMTiles 만들기</h3>
+      <pre><code>tippecanoe -o zones.pmtiles \
+  -l zones -zg \
+  --drop-densest-as-needed \
+  -y name -y code \
+  zones.geojson</code></pre>
+      <ul>
+        <li><code>-l zones</code> : 레이어 이름. 클라이언트에서 같은 이름으로 참조합니다.</li>
+        <li><code>-zg</code> : 데이터에 맞는 최대 줌을 자동 추정합니다.</li>
+        <li><code>--drop-densest-as-needed</code> : 타일이 너무 커지면 밀집된 부분부터 덜어 냅니다.</li>
+        <li><code>-y name -y code</code> : <b>필요한 속성만</b> 남깁니다. 용량을 줄이는 가장 쉬운 방법입니다.</li>
+      </ul>
+
+      <h3>3. OpenLayers에서 불러오기</h3>
+      <pre><code>import VectorTileLayer from 'ol/layer/VectorTile';
+import {PMTilesVectorSource} from 'ol-pmtiles';
+
+const layer = new VectorTileLayer({
+  declutter: true,
+  source: new PMTilesVectorSource({
+    url: 'https://example.com/data/zones.pmtiles',
+  }),
+});
+map.addLayer(layer);</code></pre>
+
+      <h2>주의할 점</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>호스팅 조건</td><td>서버가 <b>Range 요청</b>을 지원해야 합니다. 대부분의 정적 호스팅과 오브젝트 스토리지는 지원합니다.</td></tr>
+          <tr><td>파일 크기 한도</td><td>Cloudflare Workers 정적 자산은 파일당 <b>25MiB</b>까지입니다. 그보다 크면 R2 같은 오브젝트 스토리지에 올리고 주소로 연결합니다.</td></tr>
+          <tr><td>CORS</td><td>다른 도메인에서 불러오면 해당 호스트에 CORS와 Range 관련 헤더 허용이 필요합니다.</td></tr>
+          <tr><td>정밀도</td><td>낮은 줌에서는 경계가 단순화됩니다. <b>면적·길이 계산은 원본 데이터로</b>, 표시는 타일로 나누어 쓰는 것이 안전합니다.</td></tr>
+          <tr><td>좌표계</td><td>타일은 4326 입력을 3857로 투영해 만듭니다. 5181 등 원본이 있다면 변환 단계에서 좌표계를 먼저 확인하세요.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>언제 쓰면 좋은가</h2>
+      <ul>
+        <li>전국 단위 경계처럼 <b>수십 MB 이상</b>이고 속성이 자주 바뀌지 않는 데이터</li>
+        <li>서버를 운영하지 않고 정적 사이트나 설치형 앱에 지도를 넣고 싶을 때</li>
+        <li>오프라인 환경에서 파일 하나로 배포해야 할 때</li>
+      </ul>
+      <p>반대로 데이터가 수시로 바뀌거나 속성 조회·편집이 핵심이라면 DB와 API 방식이 맞습니다.</p>
+
+      <aside class="callout">
+        <b>비슷한 문제를 겪고 계신가요?</b>
+        <span>데이터와 상황만 알려주시면 원인부터 같이 살펴봅니다.</span>
+        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      </aside>
+      <nav class="more-notes" aria-label="다른 글"><a href="coordinate-systems.html">NOTE 01 · 좌표계가 어긋날 때: EPSG:5181과 3857 다루기</a><a href="iis-arr-proxy.html">NOTE 02 · 내부망에서 외부 지도 API 쓰기: IIS ARR 리버스 프록시</a><a href="address-cleanup.html">NOTE 04 · 제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기</a></nav>
+    </div>
+  </article>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
+    <a href="../index.html">홈으로</a>
+  </div>
+</footer>
+<script src="../site.js" defer></script>
+</body>
+</html>

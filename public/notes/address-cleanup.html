@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기 | 지도공방</title>
+<meta name="description" content="엑셀에 섞여 있는 도로명·지번·약식 주소를 지오코딩 전에 정리하는 규칙과, 변환 실패를 줄이는 호출 방식·검수 방법을 정리했습니다.">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/notes/address-cleanup.html">
+<meta property="og:title" content="제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기 | 지도공방">
+<meta property="og:description" content="엑셀에 섞여 있는 도로명·지번·약식 주소를 지오코딩 전에 정리하는 규칙과, 변환 실패를 줄이는 호출 방식·검수 방법을 정리했습니다.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/notes/address-cleanup.html">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
+<meta property="og:site_name" content="지도공방">
+<meta property="og:locale" content="ko_KR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기","description":"엑셀에 섞여 있는 도로명·지번·약식 주소를 지오코딩 전에 정리하는 규칙과, 변환 실패를 줄이는 호출 방식·검수 방법을 정리했습니다.","datePublished":"2026-10-13","dateModified":"2026-10-13","inLanguage":"ko","author":{"@type":"Organization","name":"지도공방"},"publisher":{"@type":"Organization","name":"지도공방"},"mainEntityOfPage":"https://gis-portfolio.bdong8896.workers.dev/notes/address-cleanup.html"}
+</script>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>지도공방</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../index.html#services">서비스</a>
+      <a href="../index.html#work">작업 사례</a>
+      <a href="../index.html#notes" aria-current="page">기술 공유</a>
+      <a href="../resources.html">자료실</a>
+      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <article class="section prose-wrap" style="border-top:none">
+    <div class="wrap prose">
+      <a class="back" href="../index.html#notes">← 기술 공유</a>
+      <span class="eyebrow">NOTE 04</span>
+      <h1>제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기</h1>
+      <p class="lead">엑셀에 섞여 있는 도로명·지번·약식 주소를 지오코딩 전에 정리하는 규칙과, 변환 실패를 줄이는 호출 방식·검수 방법을 정리했습니다.</p>
+      <p class="pub">2026.10.13 작성</p>
+
+      <h2>실패의 대부분은 입력 때문입니다</h2>
+      <p>주소 일괄 변환이 실패하는 이유는 API가 아니라 <b>주소 문자열이 지저분해서</b>인 경우가 훨씬 많습니다. 같은 주소가 사람마다 다르게 적혀 있고, 상세 정보가 한 칸에 뭉쳐 있기 때문입니다. 지오코딩 전에 규칙으로 먼저 정리해 두면 성공률이 눈에 띄게 올라갑니다.</p>
+
+      <h2>자주 보이는 오류 유형</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>유형</th><th>예시</th><th>대처</th></tr></thead>
+        <tbody>
+          <tr><td>괄호 안 부가정보</td><td>세종대로 110 (시청)</td><td>괄호와 그 안의 내용 제거</td></tr>
+          <tr><td>쉼표 뒤 상세주소</td><td>세종대로 110, 3층</td><td>쉼표 이후 제거</td></tr>
+          <tr><td>공백이 여러 개</td><td>중구 &nbsp;세종대로 &nbsp;110</td><td>연속 공백을 하나로</td></tr>
+          <tr><td>시·도 약칭</td><td>서울 중구 세종대로 110</td><td>정식 명칭으로 확장</td></tr>
+          <tr><td>전각 문자·특수 공백</td><td>전각 숫자 등</td><td>일반 문자로 정규화</td></tr>
+          <tr><td>번지·산 번지 혼재</td><td>산 12-3</td><td>지번 형식 확인 후 별도 처리</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>정리 코드 예시</h2>
+      <pre><code>function cleanAddress(raw) {
+  return String(raw ?? '')
+    .normalize('NFKC')            // 전각 문자·특수 공백 정규화
+    .replace(/\([^)]*\)/g, '')    // (건물명) 제거
+    .replace(/,.*$/, '')          // 쉼표 뒤 상세주소 제거
+    .replace(/\s{2,}/g, ' ')       // 연속 공백 정리
+    .trim();
+}
+
+const SIDO = {
+  '서울': '서울특별시', '부산': '부산광역시', '대구': '대구광역시',
+  '인천': '인천광역시', '광주': '광주광역시', '대전': '대전광역시',
+  '울산': '울산광역시', '세종': '세종특별자치시', '경기': '경기도',
+};
+function expandSido(addr) {
+  const head = addr.split(' ')[0];
+  return SIDO[head] ? addr.replace(head, SIDO[head]) : addr;
+}</code></pre>
+      <p>정규화는 <b>원본을 건드리지 않고 새 열에</b> 결과를 저장하는 것이 원칙입니다. 나중에 왜 이렇게 바뀌었는지 확인할 수 있어야 합니다.</p>
+
+      <h2>지오코딩 호출할 때</h2>
+      <ul>
+        <li><b>호출 간격을 둡니다.</b> 수천 건을 한꺼번에 던지면 제한에 걸립니다. 건당 수십~100ms 정도의 간격을 두고 순차 처리하는 편이 안정적입니다.</li>
+        <li><b>중단과 재개</b>가 가능해야 합니다. 4천 건짜리 작업이 중간에 끊기면 처음부터 다시 하게 됩니다.</li>
+        <li>검색 결과가 <b>여러 건</b>이면 첫 번째를 쓰되, 건수와 주소 종류를 함께 기록해 둡니다.</li>
+        <li>주소 검색이 실패하면 <b>키워드 검색</b>으로 한 번 더 시도하는 단계를 두면 성공률이 올라갑니다.</li>
+        <li>호출 한도와 일일 쿼터는 서비스마다 다르니 시작 전에 확인합니다.</li>
+      </ul>
+
+      <h2>결과 검수</h2>
+      <p>변환이 끝났다고 끝이 아닙니다. 다음 세 가지는 꼭 확인합니다.</p>
+      <ol>
+        <li><b>미검색 건수</b>를 따로 뽑아서 사람이 눈으로 보고 입력 오류인지 확인합니다.</li>
+        <li>변환 전후가 <b>같은 건</b>은 이미 지번이거나 실패한 건입니다. 구분해서 표시해 둡니다.</li>
+        <li>무작위로 몇 건을 지도에서 직접 열어 위치가 맞는지 확인합니다.</li>
+      </ol>
+
+      <h2>바로 써 볼 수 있는 도구</h2>
+      <p>이 사이트 <a href="../resources.html">자료실</a>에 도로명주소를 지번주소로 바꿔 주는 브라우저 도구를 올려 두었습니다. 엑셀을 올리면 주소를 정리해 변환하고, 결과 엑셀을 내려받을 수 있습니다.</p>
+
+      <aside class="callout">
+        <b>비슷한 문제를 겪고 계신가요?</b>
+        <span>데이터와 상황만 알려주시면 원인부터 같이 살펴봅니다.</span>
+        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      </aside>
+      <nav class="more-notes" aria-label="다른 글"><a href="coordinate-systems.html">NOTE 01 · 좌표계가 어긋날 때: EPSG:5181과 3857 다루기</a><a href="iis-arr-proxy.html">NOTE 02 · 내부망에서 외부 지도 API 쓰기: IIS ARR 리버스 프록시</a><a href="geojson-to-pmtiles.html">NOTE 03 · 큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기</a></nav>
+    </div>
+  </article>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
+    <a href="../index.html">홈으로</a>
+  </div>
+</footer>
+<script src="../site.js" defer></script>
+</body>
+</html>

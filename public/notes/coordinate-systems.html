@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>좌표계가 어긋날 때: EPSG:5181과 3857 다루기 | 지도공방</title>
+<meta name="description" content="국내 지도 데이터와 웹 지도를 함께 쓸 때 위치가 수십~수백 미터씩 밀리는 원인과, 좌표계를 정리하는 방법을 OpenLayers 코드와 함께 설명합니다.">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/notes/coordinate-systems.html">
+<meta property="og:title" content="좌표계가 어긋날 때: EPSG:5181과 3857 다루기 | 지도공방">
+<meta property="og:description" content="국내 지도 데이터와 웹 지도를 함께 쓸 때 위치가 수십~수백 미터씩 밀리는 원인과, 좌표계를 정리하는 방법을 OpenLayers 코드와 함께 설명합니다.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/notes/coordinate-systems.html">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
+<meta property="og:site_name" content="지도공방">
+<meta property="og:locale" content="ko_KR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"좌표계가 어긋날 때: EPSG:5181과 3857 다루기","description":"국내 지도 데이터와 웹 지도를 함께 쓸 때 위치가 수십~수백 미터씩 밀리는 원인과, 좌표계를 정리하는 방법을 OpenLayers 코드와 함께 설명합니다.","datePublished":"2026-10-13","dateModified":"2026-10-13","inLanguage":"ko","author":{"@type":"Organization","name":"지도공방"},"publisher":{"@type":"Organization","name":"지도공방"},"mainEntityOfPage":"https://gis-portfolio.bdong8896.workers.dev/notes/coordinate-systems.html"}
+</script>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>지도공방</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../index.html#services">서비스</a>
+      <a href="../index.html#work">작업 사례</a>
+      <a href="../index.html#notes" aria-current="page">기술 공유</a>
+      <a href="../resources.html">자료실</a>
+      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <article class="section prose-wrap" style="border-top:none">
+    <div class="wrap prose">
+      <a class="back" href="../index.html#notes">← 기술 공유</a>
+      <span class="eyebrow">NOTE 01</span>
+      <h1>좌표계가 어긋날 때: EPSG:5181과 3857 다루기</h1>
+      <p class="lead">국내 지도 데이터와 웹 지도를 함께 쓸 때 위치가 수십~수백 미터씩 밀리는 원인과, 좌표계를 정리하는 방법을 OpenLayers 코드와 함께 설명합니다.</p>
+      <p class="pub">2026.10.13 작성</p>
+
+      <h2>이런 증상이라면</h2>
+      <ul>
+        <li>같은 필지인데 레이어끼리 <b>수십~수백 m씩 밀려</b> 보인다.</li>
+        <li>점이 한국이 아니라 <b>바다 한가운데나 (0, 0) 근처</b>에 찍힌다.</li>
+        <li>WMS는 맞는데 WFS나 GeoJSON만 <b>위도와 경도가 뒤집힌 것처럼</b> 보인다.</li>
+      </ul>
+      <p>거의 모든 경우 원인은 하나입니다. <b>데이터의 좌표계를 코드가 잘못 가정하고 있다</b>는 것입니다.</p>
+
+      <h2>먼저 알아둘 좌표계</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>EPSG</th><th>이름</th><th>단위 · 특징</th></tr></thead>
+        <tbody>
+          <tr><td>4326</td><td>WGS84 경위도</td><td>도(degree). OpenLayers에서는 [경도, 위도] 순서</td></tr>
+          <tr><td>3857</td><td>웹 메르카토르</td><td>m. 구글·OSM 같은 타일 지도의 기본</td></tr>
+          <tr><td>5181</td><td>Korea 2000 / 중부원점</td><td>m. GRS80 타원체, 국내 지도 서비스에서 흔히 쓰는 TM</td></tr>
+          <tr><td>5186</td><td>Korea 2000 / 중부원점(Y 600,000)</td><td>5181과 같은 계열이지만 Y 가산값이 다름</td></tr>
+          <tr><td>5179</td><td>Korea 2000 / UTM-K</td><td>m. 전국을 한 장으로 다루는 좌표계</td></tr>
+          <tr><td>5174</td><td>구 Bessel 중부원점</td><td>m. 오래된 지적·건물 자료에서 자주 보임</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>밀리는 원인 세 가지</h2>
+      <h3>1. 좌표계를 지정하지 않고 가정했다</h3>
+      <p>5181과 5186은 모양이 거의 같지만 Y 가산값이 각각 500,000과 600,000입니다. 한쪽 값을 다른 쪽으로 읽으면 <b>정확히 북쪽(남쪽)으로 100km</b> 어긋납니다. 눈으로는 "엉뚱한 곳"이라 바로 알 수 있습니다.</p>
+      <h3>2. 측지계(datum)가 달라 변환 변수가 빠졌다</h3>
+      <p>구 Bessel 기반(5174)과 GRS80 기반(5181 등)은 기준 타원체 자체가 다릅니다. 변환 정의에 이동 변수(towgs84)가 없으면 <b>수백 m</b> 안팎의 오차가 남습니다. "거의 맞는데 건물 하나만큼 틀리는" 증상은 대부분 이 경우입니다.</p>
+      <h3>3. 축 순서가 뒤집혔다</h3>
+      <p>EPSG:4326을 쓰는 WMS 1.3.0은 규격상 <b>위도, 경도</b> 순서이고, GeoJSON과 OpenLayers의 4326은 <b>경도, 위도</b> 순서입니다. 같은 4326이라도 서비스마다 다르니 요청 파라미터(BBOX)를 직접 확인해야 합니다.</p>
+
+      <h2>OpenLayers에서 정리하는 방법</h2>
+      <p>proj4에 좌표계 정의를 등록한 뒤, 변환은 반드시 한 곳에서만 합니다.</p>
+      <pre><code>import proj4 from 'proj4';
+import {register} from 'ol/proj/proj4';
+import {transform} from 'ol/proj';
+
+// 5181: 중부원점, GRS80
+proj4.defs('EPSG:5181',
+  '+proj=tmerc +lat_0=38 +lon_0=127 +k=1 +x_0=200000 +y_0=500000 ' +
+  '+ellps=GRS80 +units=m +no_defs');
+register(proj4);
+
+const lonlat   = transform([x, y], 'EPSG:5181', 'EPSG:4326');
+const mercator = transform([x, y], 'EPSG:5181', 'EPSG:3857');</code></pre>
+      <p>GeoJSON을 읽을 때는 데이터가 어떤 좌표계인지와 화면이 어떤 좌표계인지를 둘 다 알려줍니다.</p>
+      <pre><code>import GeoJSON from 'ol/format/GeoJSON';
+
+const features = new GeoJSON().readFeatures(data, {
+  dataProjection: 'EPSG:5181',     // 파일 안의 좌표계
+  featureProjection: 'EPSG:3857',  // 화면(지도 뷰)의 좌표계
+});</code></pre>
+
+      <h2>원칙: 저장은 한 가지, 변환은 한 곳</h2>
+      <ul>
+        <li>서버와 DB에는 <b>한 가지 좌표계로만</b> 저장합니다(보통 4326 또는 데이터의 원본).</li>
+        <li>화면에 그릴 때만 3857로 바꿉니다. 코드 여기저기에서 변환하면 두 번 변환되는 사고가 납니다.</li>
+        <li>좌표 값에 <b>좌표계 이름을 변수명에 붙입니다</b>(<code>x5181</code>, <code>lonLat</code>). 몇 달 뒤의 나를 위한 메모입니다.</li>
+      </ul>
+
+      <h2>숫자만 봐도 알 수 있는 진단법</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>값의 모양</th><th>의심할 좌표계</th></tr></thead>
+        <tbody>
+          <tr><td>경도 124~132, 위도 33~39</td><td>4326 (경위도)</td></tr>
+          <tr><td>x 약 1,380만~1,470만 / y 약 390만~470만</td><td>3857 (웹 메르카토르)</td></tr>
+          <tr><td>x, y 모두 여섯 자리(수십만) 숫자</td><td>5181·5186·5174 같은 중부원점 계열</td></tr>
+          <tr><td>x가 수십만~백만대, y가 백만대 이상</td><td>5179 (UTM-K)</td></tr>
+        </tbody>
+      </table></div>
+      <p>값의 자릿수만 봐도 후보가 거의 좁혀집니다. 그다음 <b>위치를 아는 지점 하나</b>(예: 시청 좌표)로 변환 결과를 눈으로 확인하면 끝납니다.</p>
+
+      <aside class="callout">
+        <b>비슷한 문제를 겪고 계신가요?</b>
+        <span>데이터와 상황만 알려주시면 원인부터 같이 살펴봅니다.</span>
+        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      </aside>
+      <nav class="more-notes" aria-label="다른 글"><a href="iis-arr-proxy.html">NOTE 02 · 내부망에서 외부 지도 API 쓰기: IIS ARR 리버스 프록시</a><a href="geojson-to-pmtiles.html">NOTE 03 · 큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기</a><a href="address-cleanup.html">NOTE 04 · 제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기</a></nav>
+    </div>
+  </article>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
+    <a href="../index.html">홈으로</a>
+  </div>
+</footer>
+<script src="../site.js" defer></script>
+</body>
+</html>

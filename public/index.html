@@ -6,13 +6,14 @@
 <title>GIS 개발 외주 · 웹 지도 · 공간데이터 처리 | 지도공방</title>
 <meta name="description" content="웹 지도 서비스, GIS 데스크톱·키오스크 앱, 주소 일괄 변환·지오코딩, 좌표계 변환, 서버 구축까지. 공공기관 GIS 시스템을 개발·운영해 온 개발자에게 맡기세요.">
 <meta name="keywords" content="GIS 개발, GIS 외주, 웹 지도 개발, 지도 개발 외주, OpenLayers, 브이월드, VWorld, 카카오맵 API, 주소 지번 변환, 지오코딩, 좌표 변환, 공간데이터 처리, Electron 지도">
-<link rel="canonical" href="https://bdong.pages.dev/">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/">
 <meta property="og:title" content="GIS 개발 외주 · 웹 지도 · 공간데이터 처리 | 지도공방">
 <meta property="og:description" content="지도가 필요한 업무, 현장에서 쓰이는 시스템으로 만들어 드립니다.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://bdong.pages.dev/">
-<meta property="og:image" content="https://bdong.pages.dev/og.png">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
 <meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="지도공방">
 <meta name="twitter:card" content="summary_large_image">
 <!-- 검색엔진 소유 확인 태그: 구글 서치 콘솔 / 네이버 서치어드바이저에서 받은 meta 태그를 아래 두 줄 대신 붙여넣으세요 -->
 <!-- <meta name="google-site-verification" content="여기에_구글_코드"> -->
@@ -22,8 +23,8 @@
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
   "name": "지도공방",
-  "url": "https://bdong.pages.dev/",
-  "image": "https://bdong.pages.dev/og.png",
+  "url": "https://gis-portfolio.bdong8896.workers.dev/",
+  "image": "https://gis-portfolio.bdong8896.workers.dev/og.png",
   "description": "웹 지도 서비스, GIS 데스크톱·키오스크 앱, 주소·공간 데이터 처리, 서버 구축",
   "areaServed": "KR",
   "knowsAbout": ["GIS", "OpenLayers", "VWorld", "Kakao Maps", "Electron", "지오코딩", "좌표계 변환", "PMTiles"]
@@ -135,10 +136,10 @@
         <p class="note">현장에서 부딪히고 해결한 내용을 정리해 둡니다. 글은 계속 추가됩니다.</p>
       </div>
       <div class="cards">
-        <article class="card"><span class="no">NOTE 01</span><h3>좌표계가 어긋날 때: EPSG:5181 ↔ 3857</h3><p>국내 지도 SDK와 웹 메르카토르 레이어를 함께 쓰면 위치가 수십~수백 미터씩 밀립니다. 어디서 좌표계가 섞이는지 찾고 변환 지점을 한 곳으로 모으는 방법.</p><span class="ex">OpenLayers · proj4 · 좌표 변환</span></article>
-        <article class="card"><span class="no">NOTE 02</span><h3>내부망에서 외부 지도 API 쓰기</h3><p>IIS ARR 리버스 프록시로 외부 지도·주소 API를 내부망에서 안정적으로 호출하는 구성과, 막히기 쉬운 지점(SSL, 헤더, URL Rewrite) 점검 순서.</p><span class="ex">IIS ARR · URL Rewrite · SSL</span></article>
-        <article class="card"><span class="no">NOTE 03</span><h3>큰 GeoJSON을 가볍게: PMTiles</h3><p>수십 MB짜리 경계 데이터를 tippecanoe로 타일화해 서버 없이 정적 파일로 서비스하는 흐름과, 줌 레벨별 단순화 설정.</p><span class="ex">tippecanoe · PMTiles · GeoJSON</span></article>
-        <article class="card"><span class="no">NOTE 04</span><h3>제각각인 주소 정리하기</h3><p>엑셀에 섞여 있는 도로명·지번·약식 주소를 정규화하고 지오코딩해 좌표로 바꿀 때 자주 생기는 오류 유형과 대처법.</p><span class="ex">Python · openpyxl · Geocoder</span></article>
+        <article class="card"><span class="no">NOTE 01</span><h3>좌표계가 어긋날 때: EPSG:5181 ↔ 3857</h3><p>국내 지도 SDK와 웹 메르카토르 레이어를 함께 쓰면 위치가 수십~수백 미터씩 밀립니다. 어디서 좌표계가 섞이는지 찾고 변환 지점을 한 곳으로 모으는 방법.</p><span class="ex">OpenLayers · proj4 · 좌표 변환</span><a class="more" href="notes/coordinate-systems.html">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 02</span><h3>내부망에서 외부 지도 API 쓰기</h3><p>IIS ARR 리버스 프록시로 외부 지도·주소 API를 내부망에서 안정적으로 호출하는 구성과, 막히기 쉬운 지점(SSL, 헤더, URL Rewrite) 점검 순서.</p><span class="ex">IIS ARR · URL Rewrite · SSL</span><a class="more" href="notes/iis-arr-proxy.html">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 03</span><h3>큰 GeoJSON을 가볍게: PMTiles</h3><p>수십 MB짜리 경계 데이터를 tippecanoe로 타일화해 서버 없이 정적 파일로 서비스하는 흐름과, 줌 레벨별 단순화 설정.</p><span class="ex">tippecanoe · PMTiles · GeoJSON</span><a class="more" href="notes/geojson-to-pmtiles.html">글 읽기 →</a></article>
+        <article class="card"><span class="no">NOTE 04</span><h3>제각각인 주소 정리하기</h3><p>엑셀에 섞여 있는 도로명·지번·약식 주소를 정규화하고 지오코딩해 좌표로 바꿀 때 자주 생기는 오류 유형과 대처법.</p><span class="ex">Python · openpyxl · Geocoder</span><a class="more" href="notes/address-cleanup.html">글 읽기 →</a></article>
       </div>
     </div>
   </section>

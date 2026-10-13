@@ -41,9 +41,9 @@
 
 검색용 파일은 이미 들어 있습니다: `sitemap.xml`, `robots.txt`, `og.png`(링크 미리보기 이미지), `index.html` 안의 검색 설명·키워드·구조화 데이터.
 
-1. 네이버 서치어드바이저(searchadvisor.naver.com) → 사이트 등록 `https://bdong.pages.dev` → HTML 태그 인증
-2. 구글 서치 콘솔(search.google.com/search-console) → URL 접두어 `https://bdong.pages.dev/` → HTML 태그 인증
+1. 네이버 서치어드바이저(searchadvisor.naver.com) → 사이트 등록 `https://gis-portfolio.bdong8896.workers.dev` → HTML 태그 인증
+2. 구글 서치 콘솔(search.google.com/search-console) → URL 접두어 `https://gis-portfolio.bdong8896.workers.dev/` → HTML 태그 인증
 3. 받은 `<meta ...>` 태그 두 줄을 `index.html`의 "검색엔진 소유 확인 태그" 주석 자리에 붙여넣고 다시 배포 → 각 사이트에서 [확인] 클릭
-4. 두 곳 모두 사이트맵 제출: `https://bdong.pages.dev/sitemap.xml`
+4. 두 곳 모두 사이트맵 제출: `https://gis-portfolio.bdong8896.workers.dev/sitemap.xml`
 5. 네이버: 요청 → 웹 페이지 수집 요청 / 구글: URL 검사 → 색인 생성 요청
 6. 다음(Daum) 검색등록, Bing 웹마스터 도구(구글 서치 콘솔에서 가져오기)도 등록하면 좋습니다.
