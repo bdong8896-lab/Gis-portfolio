@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때 | 지도공방</title>
+<meta name="description" content="셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.">
+<link rel="canonical" href="https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding.html">
+<meta property="og:title" content="QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때 | 지도공방">
+<meta property="og:description" content="셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding.html">
+<meta property="og:image" content="https://gis-portfolio.bdong8896.workers.dev/og.png">
+<meta property="og:site_name" content="지도공방">
+<meta property="og:locale" content="ko_KR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때","description":"셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.","datePublished":"2026-10-13","dateModified":"2026-10-13","inLanguage":"ko","author":{"@type":"Organization","name":"지도공방"},"publisher":{"@type":"Organization","name":"지도공방"},"mainEntityOfPage":"https://gis-portfolio.bdong8896.workers.dev/notes/shp-korean-encoding.html"}
+</script>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="#F2A541" stroke-width="2"/><path d="M14 2V26M2 14H26" stroke="#4E6A82" stroke-width="1.2"/><circle cx="14" cy="14" r="3" fill="#F2A541"/></svg>
+      <b>지도공방</b><small>GIS DEVELOPER</small>
+    </a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../index.html#services">서비스</a>
+      <a href="../index.html#work">작업 사례</a>
+      <a href="../index.html#notes" aria-current="page">기술 공유</a>
+      <a href="../resources.html">자료실</a>
+      <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <article class="section prose-wrap" style="border-top:none">
+    <div class="wrap prose">
+      <a class="back" href="../index.html#notes">← 기술 공유</a>
+      <span class="eyebrow">NOTE 05</span>
+      <h1>QGIS·ArcGIS에서 셰이프파일 한글이 깨질 때</h1>
+      <p class="lead">셰이프파일(.shp)을 QGIS나 ArcGIS에서 열었더니 속성 표의 한글이 깨져 보이는 원인(CP949와 UTF-8)과, .cpg 파일·인코딩 설정·ogr2ogr로 해결하는 방법을 정리했습니다.</p>
+      <p class="pub">2026.10.13 작성</p>
+
+      <h2>이런 증상이라면</h2>
+      <ul>
+        <li>속성 표의 지번·이름 열이 <b>?, □, 알 수 없는 한자</b>로 보인다.</li>
+        <li>같은 파일이 다른 PC나 다른 프로그램에서는 정상으로 보인다.</li>
+        <li>QGIS에서는 보이는데 ArcGIS에서는 깨지거나, 그 반대다.</li>
+      </ul>
+      <p>지오메트리(도형)는 정상인데 <b>속성(.dbf)의 글자만</b> 깨진다면 거의 모두 문자 인코딩 문제입니다.</p>
+
+      <h2>원인: 셰이프파일은 인코딩을 따로 적어 둔다</h2>
+      <p>셰이프파일의 속성 정보는 <code>.dbf</code> 파일에 들어 있고, 어떤 인코딩으로 저장했는지는 <code>.cpg</code>라는 아주 작은 텍스트 파일에 적습니다. 한국에서 오래 만든 자료는 대부분 <b>CP949(EUC-KR 계열)</b>이고, 최근 프로그램은 <b>UTF-8</b>로 저장하기도 합니다. <code>.cpg</code>가 없거나 실제 인코딩과 다르면 프로그램이 엉뚱한 방식으로 읽어서 글자가 깨집니다.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>실제 저장 방식</th><th>읽는 방식</th><th>보이는 모양</th></tr></thead>
+        <tbody>
+          <tr><td>CP949</td><td>UTF-8로 읽음</td><td>? 또는 □, 일부 글자 누락</td></tr>
+          <tr><td>UTF-8</td><td>CP949로 읽음</td><td>알 수 없는 한자 같은 글자</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>해결 방법 1: 열 때 인코딩을 지정 (QGIS)</h2>
+      <ol>
+        <li>레이어를 더블클릭해 <b>레이어 속성</b>을 엽니다.</li>
+        <li><b>소스(Source)</b> 탭에서 <b>데이터 소스 인코딩</b>을 찾습니다.</li>
+        <li>글자가 정상으로 보일 때까지 <code>CP949</code>(또는 <code>EUC-KR</code>)와 <code>UTF-8</code>을 번갈아 선택하고 적용합니다.</li>
+      </ol>
+      <p>메뉴 이름은 버전과 언어에 따라 조금씩 다를 수 있습니다. 이 방법은 파일 자체를 바꾸지 않고 화면에서만 올바르게 보이게 합니다.</p>
+
+      <h2>해결 방법 2: .cpg 파일로 인코딩을 고정</h2>
+      <p>셰이프파일과 같은 이름의 <code>.cpg</code> 파일을 만들면 어떤 프로그램에서 열어도 같은 방식으로 읽습니다.</p>
+      <ol>
+        <li>메모장으로 새 텍스트 파일을 만들어 한 줄만 적습니다. 실제 인코딩이 CP949라면 <code>CP949</code>, UTF-8이라면 <code>UTF-8</code>입니다.</li>
+        <li>파일 이름을 <code>shp이름.cpg</code>로 저장합니다. (<code>.shp</code>, <code>.dbf</code>와 이름이 같아야 합니다.)</li>
+        <li>프로그램을 다시 열어 글자를 확인합니다.</li>
+      </ol>
+      <p>프로그램에 따라 표기를 다르게 인식할 수 있습니다. <code>CP949</code>가 안 되면 <code>949</code> 같은 코드페이지 번호로 적어 보세요.</p>
+
+      <h2>해결 방법 3: 파일 자체를 UTF-8로 변환 (ogr2ogr)</h2>
+      <p>여러 사람과 공유하거나 웹으로 가져갈 파일이라면 한 번 변환해 두는 것이 가장 확실합니다.</p>
+      <pre><code># CP949 셰이프파일을 UTF-8 셰이프파일로 변환
+ogr2ogr -f "ESRI Shapefile" out.shp in.shp \
+  -oo ENCODING=CP949 -lco ENCODING=UTF-8
+
+# GeoJSON으로 내보낼 때(항상 UTF-8)
+ogr2ogr -f GeoJSON out.geojson in.shp -oo ENCODING=CP949</code></pre>
+      <p><code>-oo ENCODING=</code>은 <b>읽을 때</b>의 인코딩, <code>-lco ENCODING=</code>은 <b>저장할 때</b>의 인코딩입니다. 헷갈리기 쉬우니 구분해서 쓰세요.</p>
+
+      <h2>예방 체크리스트</h2>
+      <ul>
+        <li>셰이프파일을 주고받을 때 <b><code>.shp</code>, <code>.dbf</code>, <code>.shx</code>, <code>.prj</code>, <code>.cpg</code>를 한 묶음</b>으로 전달합니다.</li>
+        <li>가능하면 <b>GeoPackage(.gpkg)</b>를 쓰세요. 인코딩이 UTF-8로 고정되어 이 문제가 없습니다.</li>
+        <li>속성 열 이름은 10자 제한이 있고 한글은 더 짧게 잘리니, 열 이름은 영문 약어로 두고 설명은 별도 문서로 관리하는 편이 안전합니다.</li>
+      </ul>
+
+      <aside class="callout">
+        <b>비슷한 문제를 겪고 계신가요?</b>
+        <span>데이터와 상황만 알려주시면 원인부터 같이 살펴봅니다.</span>
+        <a class="btn btn-primary" href="../index.html#contact">프로젝트 문의</a>
+      </aside>
+      <nav class="more-notes" aria-label="다른 글"><a href="coordinate-systems.html">NOTE 01 · 좌표계가 어긋날 때: EPSG:5181과 3857 다루기</a><a href="iis-arr-proxy.html">NOTE 02 · 내부망에서 외부 지도 API 쓰기: IIS ARR 리버스 프록시</a><a href="geojson-to-pmtiles.html">NOTE 03 · 큰 GeoJSON을 가볍게: PMTiles로 정적 서비스하기</a><a href="address-cleanup.html">NOTE 04 · 제각각인 주소 정리하기: 정규화와 지오코딩 오류 줄이기</a><a href="define-vs-reproject.html">NOTE 06 · QGIS·ArcGIS에서 좌표계가 없는 데이터에 좌표계 지정하기</a></nav>
+    </div>
+  </article>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> 지도공방 · GIS Developer</span>
+    <a href="../index.html">홈으로</a>
+  </div>
+</footer>
+<script src="../site.js" defer></script>
+</body>
+</html>
